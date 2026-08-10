@@ -1,4 +1,4 @@
-# Mission Planning Assistant
+# Vigil Station - Mission Planning Assistant
 
 Ground Station Contact Scheduling with AI Decision-Support | IBM Skillbuild Hackathon August Challenge - Advance Space Exploration with AI
 
