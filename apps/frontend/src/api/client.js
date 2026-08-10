@@ -94,6 +94,12 @@ export const api = {
     const response = await apiClient.get('/health')
     return response.data
   },
+
+  // Space Weather (P1)
+  getSpaceWeather: async (params = {}) => {
+    const response = await apiClient.get('/space-weather', { params })
+    return response.data
+  },
 }
 
 export default api

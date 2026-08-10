@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 import ScheduleTable from './pages/ScheduleTable'
 import ConflictPanel from './pages/ConflictPanel'
 import Approvals from './pages/Approvals'
+import SpaceWeatherPanel from './pages/SpaceWeatherPanel'
+import LeafletMap from './components/LeafletMap'
 
 function App() {
   const [activeTab, setActiveTab] = useState('schedule')
   const [satellites, setSatellites] = useState([])
   const [groundStations, setGroundStations] = useState([])
+  const [passes, setPasses] = useState([])
   const [loading, setLoading] = useState(true)
   const [theme, setTheme] = useState(() => {
     // Load theme from localStorage or default to 'light'
@@ -77,6 +80,18 @@ function App() {
         >
           ✅ Approvals
         </button>
+        <button
+          className={`nav-button ${activeTab === 'map' ? 'active' : ''}`}
+          onClick={() => setActiveTab('map')}
+        >
+          🗺️ Map
+        </button>
+        <button
+          className={`nav-button ${activeTab === 'space-weather' ? 'active' : ''}`}
+          onClick={() => setActiveTab('space-weather')}
+        >
+          🌞 Space Weather
+        </button>
       </nav>
 
       <main className="app-main">
@@ -90,6 +105,19 @@ function App() {
             {activeTab === 'schedule' && <ScheduleTable />}
             {activeTab === 'conflicts' && <ConflictPanel />}
             {activeTab === 'approvals' && <Approvals />}
+            {activeTab === 'map' && (
+              <div className="map-panel">
+                <div className="section-header">
+                  <h2>🗺️ Ground Station & Satellite Map</h2>
+                </div>
+                <LeafletMap 
+                  groundStations={groundStations} 
+                  satellites={satellites}
+                  passes={passes}
+                />
+              </div>
+            )}
+            {activeTab === 'space-weather' && <SpaceWeatherPanel />}
           </>
         )}
       </main>

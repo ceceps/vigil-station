@@ -670,3 +670,249 @@ tbody tr {
 [data-theme="dark"] .timestamp {
   @apply text-dark-text-secondary;
 }
+
+/* World Map */
+.world-map-wrapper {
+  @apply w-full;
+}
+
+.map-controls {
+  @apply flex items-center gap-2 mb-3;
+}
+
+.map-controls button {
+  @apply w-8 h-8 rounded font-bold text-lg cursor-pointer transition-all duration-200;
+  background-color: #1e3a5f;
+  color: white;
+  border: 1px solid #2a4a7f;
+}
+
+.map-controls button:hover {
+  background-color: #2a5a8f;
+  transform: scale(1.05);
+}
+
+.map-controls button:active {
+  transform: scale(0.95);
+}
+
+.zoom-level {
+  @apply text-sm ml-2;
+  color: #90caf9;
+}
+
+.world-map-container {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.world-map-container canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #2a4a7f;
+}
+
+[data-theme="dark"] .world-map-container canvas {
+  border-color: #2a4a7f;
+}
+
+.map-tooltip {
+  position: absolute;
+  background: rgba(10, 22, 40, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  border: 1px solid #2a4a7f;
+}
+
+.map-panel {
+  @apply w-full;
+}
+
+/* Leaflet Map */
+.leaflet-map-wrapper {
+  @apply w-full;
+}
+
+.leaflet-map-container {
+  height: 500px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #2a4a7f;
+  z-index: 1;
+}
+
+.leaflet-map-wrapper .leaflet-container {
+  border-radius: 8px;
+  border: 1px solid #2a4a7f;
+  z-index: 1;
+}
+
+.map-legend {
+  @apply flex gap-4 mt-3 p-3 rounded-lg;
+  background-color: rgba(10, 22, 40, 0.9);
+  border: 1px solid #2a4a7f;
+}
+
+.legend-item {
+  @apply flex items-center gap-2 text-sm text-white;
+}
+
+.legend-icon {
+  @apply w-3 h-3 rounded-full;
+}
+
+.legend-icon.station {
+  background-color: #4caf50;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.legend-icon.satellite {
+  background-color: #2196f3;
+}
+
+.legend-icon.pass-line {
+  background: transparent;
+  border: none;
+  width: 20px;
+  height: 2px;
+  border-top: 2px dashed #ff9800;
+}
+
+.popup-content {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #1a1a2e;
+}
+
+.leaflet-popup-content-wrapper {
+  background: white;
+  color: #1a1a2e;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.leaflet-popup-content-wrapper.satellite-popup {
+  background: rgba(10, 22, 40, 0.95);
+  color: white;
+  border: 1px solid #2a4a7f;
+}
+
+.popup-content strong {
+  color: #1a1a2e;
+}
+
+/* Marker animations */
+@keyframes pulse {
+  0% { box-shadow: 0 0 5px rgba(33, 150, 243, 0.6); }
+  50% { box-shadow: 0 0 15px rgba(33, 150, 243, 0.9); }
+  100% { box-shadow: 0 0 5px rgba(33, 150, 243, 0.6); }
+}
+
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.station-dot {
+  width: 18px;
+  height: 18px;
+  background: #4caf50;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid white;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.satellite-dot {
+  width: 14px;
+  height: 14px;
+  background: #2196f3;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
+  animation: pulse 2s infinite;
+}
+
+/* Space Weather Panel */
+.space-weather-panel {
+  @apply w-full;
+}
+
+.event-card {
+  @apply bg-surface p-4 rounded-lg shadow mb-4 transition-all duration-300 hover:shadow-lg;
+}
+
+[data-theme="dark"] .event-card {
+  @apply bg-dark-surface;
+}
+
+.event-header {
+  @apply flex items-center gap-3 mb-3 pb-3 border-b border-border;
+}
+
+[data-theme="dark"] .event-header {
+  @apply border-dark-border;
+}
+
+.event-icon {
+  @apply text-2xl;
+}
+
+.event-type {
+  @apply font-semibold text-text-primary flex-1;
+}
+
+[data-theme="dark"] .event-type {
+  @apply text-dark-text-primary;
+}
+
+.event-severity {
+  @apply px-2 py-1 rounded text-xs font-semibold text-white;
+}
+
+.event-details {
+  @apply text-sm;
+}
+
+.event-details p {
+  @apply mb-1 text-text-secondary;
+}
+
+[data-theme="dark"] .event-details p {
+  @apply text-dark-text-secondary;
+}
+
+.risk-factors {
+  @apply mt-4 p-4 bg-error/10 rounded-lg;
+}
+
+[data-theme="dark"] .risk-factors {
+  @apply bg-dark-error/10;
+}
+
+.risk-factors h4 {
+  @apply font-semibold mb-2 text-error;
+}
+
+[data-theme="dark"] .risk-factors h4 {
+  @apply text-dark-error;
+}
+
+.risk-factors ul {
+  @apply list-disc list-inside;
+}
+
+.risk-factors li {
+  @apply text-sm text-text-secondary mb-1;
+}
+
+[data-theme="dark"] .risk-factors li {
+  @apply text-dark-text-secondary;
+}
