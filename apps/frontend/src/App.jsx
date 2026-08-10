@@ -8,6 +8,16 @@ function App() {
   const [satellites, setSatellites] = useState([])
   const [groundStations, setGroundStations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [theme, setTheme] = useState(() => {
+    // Load theme from localStorage or default to 'light'
+    return localStorage.getItem('theme') || 'light'
+  })
+
+  useEffect(() => {
+    // Apply theme to document
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   useEffect(() => {
     // Load initial data
@@ -25,11 +35,27 @@ function App() {
     loadInitialData()
   }, [])
 
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light')
+  }
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🛰️ Mission Planning Assistant</h1>
-        <p className="subtitle">Ground Station Contact Scheduling with AI Decision-Support</p>
+        <div className="header-content">
+          <div>
+            <h1>🛰️ Mission Planning Assistant</h1>
+            <p className="subtitle">Ground Station Contact Scheduling with AI Decision-Support</p>
+          </div>
+          <button 
+            className="theme-toggle" 
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        </div>
       </header>
 
       <nav className="app-nav">
