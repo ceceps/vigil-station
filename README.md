@@ -1,0 +1,595 @@
+# Mission Planning Assistant
+
+Ground Station Contact Scheduling with AI Decision-Support | IBM Skillbuild Hackathon August Challenge - Advance Space Exploration with AI
+
+
+A satellite operations planning system built for the IBM Bob Space Exploration Hackathon. This application calculates contact windows between satellites and ground stations, detects scheduling conflicts, and provides AI-powered recommendations for conflict resolution.
+
+## 🎯 Features
+
+- **Real-time Pass Calculation**: Calculate satellite pass windows using real orbital data (TLE) from Space-Track.org
+- **Conflict Detection**: Automatically detect scheduling conflicts when multiple satellites need the same ground station
+- **AI-Powered Recommendations**: Get natural language recommendations from Claude AI for resolving conflicts
+- **Weather Integration**: Consider weather conditions in scheduling decisions (Open-Meteo API)
+- **Human-in-the-Loop**: All AI recommendations require operator approval or override
+- **Interactive Dashboard**: React-based UI for schedule management, conflict resolution, and approvals
+
+## 🤖 How to Use IBM Bob - Development Journey
+
+This project was built entirely with **IBM Bob**, an AI-powered development assistant that guided the complete software development lifecycle from initial planning to production-ready code.
+
+### 📋 Phase 1: Planning & Requirements Analysis
+
+**What IBM Bob Did:**
+- Analyzed the hackathon requirements from `docs/AGENTS.md` and `docs/PLANNING.md`
+- Clarified ambiguous requirements through interactive questions:
+  - Ground station locations (Jakarta, Singapore, Bandung)
+  - LLM provider selection (Anthropic Claude)
+  - Database choice (PostgreSQL for production scalability)
+- Created a comprehensive technical specification
+- Designed the monorepo architecture with clear separation of concerns
+
+**Key Decisions Made:**
+- Monorepo structure with `apps/backend` and `apps/frontend`
+- PostgreSQL over SQLite for production readiness
+- Skyfield library for accurate orbital mechanics
+- Human-in-the-loop approval workflow
+
+### 💻 Phase 2: Code Generation & Implementation
+
+**What IBM Bob Did:**
+- Generated complete backend infrastructure:
+  - 7 FastAPI routers (satellites, ground_stations, passes, conflicts, recommendations, schedule)
+  - 5 service modules (spacetrack_client, orbit_calc, conflict_detector, weather_client, llm_reasoner)
+  - SQLAlchemy ORM models with proper relationships
+  - Alembic migration system for version-controlled schema changes
+  - PostgreSQL connection pooling and optimization
+- Created frontend application:
+  - 3 React pages (ScheduleTable, ConflictPanel, Approvals)
+  - API client with Axios
+  - Responsive CSS styling
+  - Component-based architecture
+- Implemented core features:
+  - TLE caching system to respect Space-Track.org rate limits
+  - Orbital pass calculation using Skyfield
+  - Conflict detection algorithm
+  - AI reasoning integration with Anthropic Claude
+  - Weather data integration with Open-Meteo
+
+**Code Quality Practices:**
+- Type hints throughout Python code
+- Pydantic schemas for API validation
+- Structured logging with context
+- Error handling and graceful degradation
+- RESTful API design
+
+### 🐛 Phase 3: Debugging & Problem Solving
+
+**Issues IBM Bob Resolved:**
+
+1. **Alembic Import Error**
+   - Problem: `ModuleNotFoundError: No module named 'app'`
+   - Solution: Added path resolution to `alembic/env.py` to properly import application modules
+
+2. **SQLAlchemy Reserved Name Error**
+   - Problem: `Attribute name 'metadata' is reserved when using the Declarative API`
+   - Solution: Renamed database column from `metadata` to `extra_data` across all files
+
+3. **Timezone Compatibility Issues**
+   - Problem: Skyfield requires its own UTC timezone object, not Python's standard `timezone.utc`
+   - Solution: Implemented `_ensure_skyfield_utc()` method using `from skyfield.api import utc`
+   - Created database migration to convert all TIMESTAMP columns to TIMESTAMPTZ
+
+4. **File Encoding Issues**
+   - Problem: Unicode box-drawing characters in test.sh causing bash errors
+   - Solution: Rewrote file with clean ASCII text
+
+**Debugging Approach:**
+- Read error messages carefully and identify root causes
+- Check relevant source files to understand context
+- Apply targeted fixes without breaking existing functionality
+- Create database migrations for schema changes
+- Test fixes incrementally
+
+### 🧪 Phase 4: Testing & Validation
+
+**What IBM Bob Provided:**
+
+1. **Automated Setup Script** (`setup_postgres.sh`):
+   - Checks PostgreSQL installation
+   - Creates database and user
+   - Runs migrations automatically
+   - Provides clear error messages
+
+2. **Testing Documentation**:
+   - Complete API endpoint testing guide with cURL examples
+   - Frontend UI testing workflow
+   - Database verification queries
+   - End-to-end testing scenarios
+   - Quick test script for automated checks
+
+3. **Troubleshooting Guide**:
+   - Common issues and solutions
+   - PostgreSQL connection problems
+   - API authentication errors
+   - CORS configuration
+   - Performance testing with Apache Bench
+
+### 🎓 What You Can Learn from This Process
+
+**Using IBM Bob Effectively:**
+
+1. **Start with Clear Requirements**
+   - Provide documentation files (AGENTS.md, PLANNING.md)
+   - Let Bob analyze and ask clarifying questions
+   - Confirm architectural decisions early
+
+2. **Iterative Development**
+   - Bob builds features incrementally
+   - Each component is tested before moving forward
+   - Issues are resolved immediately when discovered
+
+3. **Interactive Problem Solving**
+   - Share complete error messages with Bob
+   - Bob analyzes, identifies root cause, and provides fixes
+   - Multiple approaches tried if first solution doesn't work
+
+4. **Documentation as You Go**
+   - Bob generates comprehensive README
+   - API documentation through FastAPI/Swagger
+   - Inline code comments and docstrings
+   - Setup scripts with clear instructions
+
+5. **Production-Ready Code**
+   - Database migrations for schema versioning
+   - Connection pooling for performance
+   - Error handling and logging
+   - Security best practices (environment variables, no hardcoded secrets)
+
+### 🚀 Development Timeline
+
+From zero to production-ready application:
+
+1. **Hour 1**: Requirements analysis and architecture design
+2. **Hour 2-3**: Backend implementation (API, services, database)
+3. **Hour 4**: Frontend implementation (React pages, components)
+4. **Hour 5**: Database migration to PostgreSQL
+5. **Hour 6**: Debugging and timezone fixes
+6. **Hour 7**: Testing, documentation, and deployment preparation
+
+**Total Development Time**: ~7 hours with IBM Bob assistance
+
+### 💡 Key Takeaways
+
+**What IBM Bob Excels At:**
+- ✅ Rapid prototyping and code generation
+- ✅ Debugging complex issues (timezone, imports, database)
+- ✅ Creating comprehensive documentation
+- ✅ Following best practices and design patterns
+- ✅ Adapting to changing requirements
+- ✅ Providing multiple solutions to problems
+
+**What You Still Need to Do:**
+- 🔑 Obtain API credentials (Space-Track.org, Anthropic)
+- 🗄️ Install and configure PostgreSQL
+- 🧪 Run the application and verify functionality
+- 🎨 Customize UI/UX based on user feedback
+- 📊 Monitor performance in production
+
+### 🎯 Replicating This Success
+
+To build your own project with IBM Bob:
+
+1. **Prepare Documentation**: Brainstorming Design Thinking Worksheet with IBM Bob after that create clear requirement documents
+2. **Start Conversation**: Share your goals and constraints
+3. **Clarify Ambiguities**: Answer Bob's questions about design choices
+4. **Review Generated Code**: Understand what Bob creates
+5. **Report Issues**: Share complete error messages when problems occur
+6. **Iterate**: Let Bob refine and improve based on feedback
+7. **Test Thoroughly**: Use Bob's testing guides to validate functionality
+
+**IBM Bob is your AI pair programmer** - it handles the heavy lifting of code generation, debugging, and documentation, allowing you to focus on business logic, user experience, and strategic decisions.
+
+---
+
+## 🏗️ Architecture
+
+```
+mission-planning-assistant/
+├── apps/
+│   ├── backend/          # Python FastAPI backend
+│   └── frontend/         # React frontend
+├── docs/                 # Documentation
+└── README.md
+```
+
+### Tech Stack
+
+**Backend:**
+- FastAPI (Python web framework)
+- Skyfield (orbital mechanics calculations)
+- Anthropic Claude (AI reasoning)
+- **PostgreSQL** (production database)
+- SQLAlchemy (ORM)
+- Alembic (database migrations)
+- Space-Track.org API (satellite TLE data)
+- Open-Meteo API (weather data)
+
+**Frontend:**
+- React 18
+- Vite (build tool)
+- Axios (HTTP client)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 18+
+- **PostgreSQL 12+**
+- Space-Track.org account (free registration at https://www.space-track.org/auth/createAccount)
+- Anthropic API key (https://console.anthropic.com/)
+
+### PostgreSQL Setup
+
+#### Option 1: Automated Setup (Recommended)
+
+Run the provided setup script:
+
+```bash
+cd apps/backend
+./setup_postgres.sh
+```
+
+This script will:
+- Check if PostgreSQL is installed and running
+- Create the database and user
+- Run database migrations automatically
+
+#### Option 2: Manual Setup
+
+1. **Install PostgreSQL** (if not already installed):
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install postgresql postgresql-contrib
+
+# macOS
+brew install postgresql
+brew services start postgresql
+
+# Windows
+# Download from https://www.postgresql.org/download/windows/
+```
+
+2. **Create database and user**:
+
+```bash
+sudo -u postgres psql
+```
+
+```sql
+CREATE USER mission_user WITH PASSWORD 'mission_password';
+CREATE DATABASE mission_planning OWNER mission_user;
+GRANT ALL PRIVILEGES ON DATABASE mission_planning TO mission_user;
+\c mission_planning
+GRANT ALL ON SCHEMA public TO mission_user;
+\q
+```
+
+3. **Run database migrations**:
+
+```bash
+cd apps/backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+alembic upgrade head
+```
+
+### Backend Setup
+
+1. Navigate to the backend directory:
+```bash
+cd apps/backend
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Create `.env` file from example:
+```bash
+cp .env.example .env
+```
+
+5. Edit `.env` and add your credentials:
+```env
+# Space-Track.org credentials
+SPACETRACK_USERNAME=your_spacetrack_username
+SPACETRACK_PASSWORD=your_spacetrack_password
+
+# Anthropic Claude API
+ANTHROPIC_API_KEY=your_anthropic_api_key
+ANTHROPIC_API_URL=https://client.claude.ai/v1
+ANTHROPIC_MODEL=claude-opus-5
+
+# PostgreSQL Database
+DATABASE_URL=postgresql://mission_user:mission_password@localhost:5432/mission_planning
+```
+
+6. Run the backend server:
+```bash
+python -m app.main
+```
+
+The API will be available at `http://localhost:8000`
+- API Documentation: `http://localhost:8000/docs`
+- Alternative docs: `http://localhost:8000/redoc`
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+```bash
+cd apps/frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create `.env` file from example:
+```bash
+cp .env.example .env
+```
+
+4. Run the development server:
+```bash
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173`
+
+## 📡 Ground Stations
+
+The system is configured with three ground stations in Southeast Asia:
+
+1. **Jakarta Ground Station** (-6.2088°, 106.8456°)
+2. **Singapore Ground Station** (1.3521°, 103.8198°)
+3. **Bandung Ground Station** (-6.9175°, 107.6191°)
+
+All stations have a minimum elevation threshold of 10°.
+
+## 🛰️ Satellite Group
+
+The system tracks the **Iridium** satellite constellation (LEO communication satellites).
+
+## 🔄 API Endpoints
+
+### Satellites
+- `GET /satellites` - List all tracked satellites
+
+### Ground Stations
+- `GET /ground-stations` - List all ground stations
+
+### Passes
+- `GET /passes?satellite_id=&ground_station_id=&start=&end=` - Calculate pass windows
+
+### Conflicts
+- `GET /conflicts?ground_station_id=&start=&end=` - Detect scheduling conflicts
+
+### Recommendations
+- `POST /recommendations` - Generate AI recommendation for conflict resolution
+  ```json
+  {
+    "conflict_id": "conflict_pass_123_pass_456"
+  }
+  ```
+
+### Schedule Approval
+- `POST /schedule/{id}/approve` - Approve or override a recommendation
+  ```json
+  {
+    "approved": true,
+    "override_reason": "Optional reason if not approved"
+  }
+  ```
+
+## 🗄️ Database Management
+
+### Migrations
+
+Create a new migration after model changes:
+```bash
+cd apps/backend
+alembic revision --autogenerate -m "Description of changes"
+```
+
+Apply migrations:
+```bash
+alembic upgrade head
+```
+
+Rollback last migration:
+```bash
+alembic downgrade -1
+```
+
+View migration history:
+```bash
+alembic history
+```
+
+### Database Connection
+
+The application uses PostgreSQL with connection pooling for optimal performance:
+- Pool size: 10 connections
+- Max overflow: 20 connections
+- Connection pre-ping enabled for reliability
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd apps/backend
+pytest tests/
+```
+
+### Frontend Tests
+```bash
+cd apps/frontend
+npm test
+```
+
+## 📊 Usage Flow
+
+1. **View Schedule**: See all upcoming satellite passes in the Schedule tab
+2. **Check Conflicts**: Navigate to Conflicts tab to see overlapping passes
+3. **Get AI Recommendation**: Click "Generate AI Recommendation" for any conflict
+4. **Review & Approve**: Go to Approvals tab to approve or override recommendations
+
+## 🔧 Configuration
+
+### Backend Configuration (`apps/backend/.env`)
+
+```env
+# Space-Track.org credentials
+SPACETRACK_USERNAME=your_username
+SPACETRACK_PASSWORD=your_password
+
+# Anthropic Claude API
+ANTHROPIC_API_KEY=your_api_key
+
+# NASA DONKI API (optional)
+NASA_API_KEY=DEMO_KEY
+
+# PostgreSQL Database
+DATABASE_URL=postgresql://mission_user:mission_password@localhost:5432/mission_planning
+
+# Server
+HOST=0.0.0.0
+PORT=8000
+DEBUG=True
+
+# CORS
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# Cache
+TLE_CACHE_HOURS=6
+```
+
+### Frontend Configuration (`apps/frontend/.env`)
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+## 📝 Development Notes
+
+### TLE Caching
+- TLE data is cached for 6 hours by default to avoid Space-Track.org rate limits
+- Cache is stored in PostgreSQL database
+- Force refresh by clearing the cache or restarting the backend
+
+### AI Reasoning
+- Uses Anthropic Claude 3.5 Sonnet for generating recommendations
+- Recommendations include natural language reasoning based on:
+  - Orbital elevation angles
+  - Alternative time windows
+  - Weather conditions (if available)
+  - Timing proximity to original schedule
+
+### Weather Integration
+- Weather data from Open-Meteo API (no API key required)
+- Considers cloud cover, precipitation, and visibility
+- Integrated into AI reasoning for scheduling decisions
+
+### Database Architecture
+- PostgreSQL with SQLAlchemy ORM
+- Alembic for schema migrations
+- Connection pooling for performance
+- Indexed queries for fast lookups
+
+## 🐛 Troubleshooting
+
+### Backend Issues
+
+**"Failed to authenticate with Space-Track.org"**
+- Verify your Space-Track credentials in `.env`
+- Check if your account is active at https://www.space-track.org
+
+**"No TLE data found"**
+- Space-Track may be temporarily unavailable
+- Check your internet connection
+- Verify the satellite group name in configuration
+
+**"Database connection failed"**
+- Ensure PostgreSQL is running: `pg_isready`
+- Verify database credentials in `.env`
+- Check if database exists: `psql -U mission_user -d mission_planning`
+- Run migrations: `alembic upgrade head`
+
+### Frontend Issues
+
+**"Failed to load satellites"**
+- Ensure backend is running on `http://localhost:8000`
+- Check CORS configuration in backend `.env`
+- Verify `VITE_API_URL` in frontend `.env`
+
+**"API Request Error"**
+- Check browser console for detailed error messages
+- Verify backend API is accessible
+- Check network tab in browser developer tools
+
+### PostgreSQL Issues
+
+**"Connection refused"**
+- Start PostgreSQL service:
+  - Ubuntu/Debian: `sudo systemctl start postgresql`
+  - macOS: `brew services start postgresql`
+  - Windows: Start from Services panel
+
+**"Database does not exist"**
+- Run the setup script: `./setup_postgres.sh`
+- Or create manually (see PostgreSQL Setup section)
+
+**"Permission denied"**
+- Ensure user has proper privileges
+- Run: `GRANT ALL PRIVILEGES ON DATABASE mission_planning TO mission_user;`
+
+## 📚 Documentation
+
+- Full specification: `docs/PLANNING.md`
+- Agent instructions: `docs/AGENTS.md`
+- API documentation: `http://localhost:8000/docs` (when backend is running)
+
+## 🏆 Hackathon Context
+
+Built for the IBM Bob Space Exploration Hackathon with the following goals:
+- Demonstrate AI-powered decision support for satellite operations
+- Show integration of multiple data sources (orbital, weather, space weather)
+- Maintain human-in-the-loop principles for mission-critical decisions
+- Provide clear, explainable AI reasoning
+- Use production-grade database (PostgreSQL) for scalability
+
+## 📄 License
+
+This project was created for the IBM Bob Space Exploration Hackathon.
+
+## 🙏 Acknowledgments
+
+- **IBM Bob** - AI development assistant that built this entire project
+- Space-Track.org for satellite TLE data
+- Anthropic for Claude AI API
+- Open-Meteo for weather data
+- NASA DONKI for space weather data
+- Skyfield library for orbital mechanics calculations
+- PostgreSQL community for the robust database system
