@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../api/client'
+import Shimmer from '../components/Shimmer'
 
 function ScheduleTable() {
   const [passes, setPasses] = useState([])
@@ -169,10 +170,10 @@ function ScheduleTable() {
       )}
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading passes...</p>
-        </div>
+        <>
+          <Shimmer type="stats" />
+          <Shimmer type="table" rows={8} />
+        </>
       ) : (
         <>
           <div className="stats">

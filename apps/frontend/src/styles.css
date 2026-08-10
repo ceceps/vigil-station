@@ -566,3 +566,117 @@ tbody tr:hover {
     flex-direction: column;
   }
 }
+
+
+
+/* Shimmer Loading Effects */
+.shimmer-animate {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Shimmer Table */
+.shimmer-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.shimmer-header {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.shimmer-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.shimmer-cell {
+  height: 20px;
+  border-radius: 4px;
+}
+
+/* Shimmer Cards */
+.shimmer-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shimmer-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.shimmer-card-header {
+  height: 24px;
+  width: 60%;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.shimmer-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shimmer-line {
+  height: 16px;
+  border-radius: 4px;
+}
+
+.shimmer-line.short {
+  width: 40%;
+}
+
+/* Shimmer Stats */
+.shimmer-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.shimmer-stat-card {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.shimmer-stat-value {
+  height: 48px;
+  width: 80px;
+  margin: 0 auto 1rem;
+  border-radius: 4px;
+}
+
+.shimmer-stat-label {
+  height: 20px;
+  width: 120px;
+  margin: 0 auto;
+  border-radius: 4px;
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../api/client'
+import Shimmer from '../components/Shimmer'
 
 function Approvals() {
   const [conflicts, setConflicts] = useState([])
@@ -147,10 +148,10 @@ function Approvals() {
       )}
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading approval queue...</p>
-        </div>
+        <>
+          <Shimmer type="stats" />
+          <Shimmer type="card" rows={3} />
+        </>
       ) : (
         <>
           <div className="stats">

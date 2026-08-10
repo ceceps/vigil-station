@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../api/client'
+import Shimmer from '../components/Shimmer'
 
 function ConflictPanel() {
   const [conflicts, setConflicts] = useState([])
@@ -189,10 +190,10 @@ function ConflictPanel() {
       )}
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Detecting conflicts...</p>
-        </div>
+        <>
+          <Shimmer type="stats" />
+          <Shimmer type="card" rows={3} />
+        </>
       ) : (
         <>
           <div className="stats">
