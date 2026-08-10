@@ -1,6 +1,13 @@
 #!/bin/bash
 echo "🧪 Testing Mission Planning Assistant..."
 
+# Wait for backend to be ready
+echo "Waiting for backend..."
+for i in {1..20}; do
+  curl -s http://localhost:8000/ > /dev/null 2>&1 && break
+  sleep 1
+done
+
 echo "1. Testing backend health..."
 curl -s http://localhost:8000/ | grep -q "Mission Planning" && echo "✅ Backend OK" || echo "❌ Backend failed"
 
