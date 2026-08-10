@@ -16,6 +16,7 @@ from app.services.orbit_calc import orbit_calculator
 from app.services.conflict_detector import conflict_detector
 from app.services.llm_reasoner import llm_reasoner
 from app.services.weather_client import weather_client
+from app.services.space_weather_client import space_weather_client
 from app.core.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -187,11 +188,38 @@ async def generate_recommendation(request: RecommendationRequest):
                 error=str(e)
             )
         
+        # Get space weather data (P1 feature)
+        space_weather_data = None
+        try:
+            # Fetch space weather events for the time window
+            start_time_dt = datetime.utcnow() - timedelta(hours=24)
+            end_time_dt = datetime.utcnow() + timedelta(hours=48)
+            
+            space_weather = await space_weather_client.get_space_weather_events(
+                start_time_dt,
+                end_time_dt
+            )
+            
+            # Assess communication impact
+            communication_impact = space_weather_client.is_communication_affected(space_weather)
+            
+            space_weather_data = {
+                **space_weather,
+                'communication_impact': communication_impact
+            }
+            
+        except Exception as e:
+            logger.warning(
+                "Failed to fetch space weather data for recommendation",
+                error=str(e)
+            )
+        
         # Generate recommendation using LLM
         recommendation = await llm_reasoner.generate_recommendation(
             conflict,
             alternative_passes,
-            weather_data
+            weather_data,
+            space_weather_data
         )
         
         logger.info(

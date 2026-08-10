@@ -25,7 +25,8 @@ class LLMReasoner:
         self,
         conflict: Dict[str, Any],
         alternative_passes: List[Dict[str, Any]],
-        weather_data: Optional[Dict[str, Any]] = None
+        weather_data: Optional[Dict[str, Any]] = None,
+        space_weather_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Generate a conflict resolution recommendation using Claude.
@@ -34,6 +35,7 @@ class LLMReasoner:
             conflict: Conflict dictionary with pass details
             alternative_passes: List of alternative pass windows
             weather_data: Optional weather data for the passes
+            space_weather_data: Optional space weather data for the passes
         
         Returns:
             Recommendation dictionary with suggested_action, target_pass_id, 
@@ -44,7 +46,8 @@ class LLMReasoner:
             prompt = self._build_recommendation_prompt(
                 conflict,
                 alternative_passes,
-                weather_data
+                weather_data,
+                space_weather_data
             )
             
             # Call Claude API
@@ -88,7 +91,8 @@ class LLMReasoner:
         self,
         conflict: Dict[str, Any],
         alternative_passes: List[Dict[str, Any]],
-        weather_data: Optional[Dict[str, Any]] = None
+        weather_data: Optional[Dict[str, Any]] = None,
+        space_weather_data: Optional[Dict[str, Any]] = None
     ) -> str:
         """Build the prompt for Claude with all relevant context."""
         
@@ -141,6 +145,25 @@ Weather Conditions:
 - Favorable: {'Yes' if weather_data.get('is_favorable', True) else 'No'}
 """
         
+        # Add space weather context if available
+        space_weather_text = ""
+        if space_weather_data:
+            overall_status = space_weather_data.get('overall_status', 'unknown')
+            communication_impact = space_weather_data.get('communication_impact', {})
+            affected = communication_impact.get('affected', False)
+            risk_factors = communication_impact.get('risk_factors', [])
+            
+            space_weather_text = f"""
+
+Space Weather Conditions:
+- Overall Status: {overall_status.upper()}
+- Communication Impact: {'YES - Link quality may be degraded' if affected else 'No significant impact'}
+"""
+            if risk_factors:
+                space_weather_text += "- Risk Factors:\n"
+                for factor in risk_factors:
+                    space_weather_text += f"  * {factor}\n"
+        
         prompt = f"""You are a satellite operations planning assistant. Two satellite passes are scheduled at the same ground station with overlapping time windows, creating a scheduling conflict.
 
 CONFLICT DETAILS:
@@ -151,13 +174,15 @@ Overlap Period: {overlap_start} to {overlap_end}
 {pass2_details}
 {alternatives_text}
 {weather_text}
+{space_weather_text}
 
 TASK:
 Analyze this conflict and provide a recommendation for resolution. Consider:
 1. Which pass should be prioritized or rescheduled
 2. Whether alternative windows are suitable (elevation above minimum threshold)
 3. Weather conditions if provided
-4. Timing proximity to the original schedule
+4. Space weather conditions if provided (may affect link quality)
+5. Timing proximity to the original schedule
 
 Provide your recommendation in the following format:
 

@@ -124,3 +124,18 @@ class SpaceWeatherEvent(BaseModel):
     end_time: Optional[str] = Field(None, description="Event end time in ISO 8601 UTC format")
     severity: str = Field(..., description="Event severity (e.g., 'minor', 'moderate', 'severe')")
     description: str = Field(..., description="Event description")
+
+
+class SpaceWeatherCommunicationImpact(BaseModel):
+    """Assessment of space weather impact on communication."""
+    affected: bool = Field(..., description="Whether communication may be affected")
+    overall_status: str = Field(..., description="Overall space weather status")
+    risk_factors: List[str] = Field(default_factory=list, description="List of risk factors")
+    recommendation: str = Field(..., description="Recommendation for operators")
+
+
+class SpaceWeatherResponse(BaseModel):
+    """Response schema for space weather data."""
+    events: List[SpaceWeatherEvent] = Field(default_factory=list, description="List of space weather events")
+    overall_status: str = Field(..., description="Overall space weather status")
+    communication_impact: SpaceWeatherCommunicationImpact = Field(..., description="Communication impact assessment")
