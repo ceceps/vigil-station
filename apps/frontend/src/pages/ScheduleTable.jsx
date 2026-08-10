@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../api/client'
+import Shimmer from '../components/Shimmer'
 
 function ScheduleTable() {
   const [passes, setPasses] = useState([])
@@ -33,6 +34,17 @@ function ScheduleTable() {
       ])
       setSatellites(satsData.satellites || [])
       setGroundStations(gsData.ground_stations || [])
+      
+      // Auto-load passes for all satellites on initial render
+      const startTime = new Date(filters.startTime + 'T00:00:00Z')
+      const endTime = new Date(startTime.getTime() + filters.hours * 60 * 60 * 1000)
+      
+      const passesData = await api.getPasses({
+        start: startTime.toISOString(),
+        end: endTime.toISOString()
+      })
+      setPasses(passesData.passes || [])
+      
       setError(null)
     } catch (err) {
       console.error('Failed to load initial data:', err)
@@ -169,10 +181,10 @@ function ScheduleTable() {
       )}
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading passes...</p>
-        </div>
+        <>
+          <Shimmer type="stats" />
+          <Shimmer type="table" rows={8} />
+        </>
       ) : (
         <>
           <div className="stats">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../api/client'
+import Shimmer from '../components/Shimmer'
 
 function ConflictPanel() {
   const [conflicts, setConflicts] = useState([])
@@ -35,6 +36,24 @@ function ConflictPanel() {
       ])
       setSatellites(satsData.satellites || [])
       setGroundStations(gsData.ground_stations || [])
+      
+      // Auto-load conflicts for all ground stations on initial render
+      const startTime = new Date(filters.startTime + 'T00:00:00Z')
+      const endTime = new Date(startTime.getTime() + filters.hours * 60 * 60 * 1000)
+      
+      const params = {
+        start: startTime.toISOString(),
+        end: endTime.toISOString()
+      }
+      
+      const [conflictsData, passesData] = await Promise.all([
+        api.getConflicts(params),
+        api.getPasses(params)
+      ])
+      
+      setConflicts(conflictsData.conflicts || [])
+      setPasses(passesData.passes || [])
+      
       setError(null)
     } catch (err) {
       console.error('Failed to load initial data:', err)
@@ -189,10 +208,10 @@ function ConflictPanel() {
       )}
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Detecting conflicts...</p>
-        </div>
+        <>
+          <Shimmer type="stats" />
+          <Shimmer type="card" rows={3} />
+        </>
       ) : (
         <>
           <div className="stats">
