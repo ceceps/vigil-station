@@ -36,6 +36,24 @@ function ConflictPanel() {
       ])
       setSatellites(satsData.satellites || [])
       setGroundStations(gsData.ground_stations || [])
+      
+      // Auto-load conflicts for all ground stations on initial render
+      const startTime = new Date(filters.startTime + 'T00:00:00Z')
+      const endTime = new Date(startTime.getTime() + filters.hours * 60 * 60 * 1000)
+      
+      const params = {
+        start: startTime.toISOString(),
+        end: endTime.toISOString()
+      }
+      
+      const [conflictsData, passesData] = await Promise.all([
+        api.getConflicts(params),
+        api.getPasses(params)
+      ])
+      
+      setConflicts(conflictsData.conflicts || [])
+      setPasses(passesData.passes || [])
+      
       setError(null)
     } catch (err) {
       console.error('Failed to load initial data:', err)
