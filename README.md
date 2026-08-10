@@ -319,6 +319,15 @@ DATABASE_URL=postgresql://mission_user:mission_password@localhost:5432/mission_p
 python -m app.main
 ```
 
+Option if run with uvicorn to run backend in background 
+``bash
+uvivorn -m app.main:app
+```
+Stop uvivorn 
+```
+pkill -f "uvicorn app.main" 2>/dev/null; sleep 2; ps aux | grep uvicorn | grep -v grep
+```
+
 The API will be available at `http://localhost:8000`
 - API Documentation: `http://localhost:8000/docs`
 - Alternative docs: `http://localhost:8000/redoc`
@@ -330,10 +339,12 @@ The API will be available at `http://localhost:8000`
 cd apps/frontend
 ```
 
-2. Install dependencies:
+2. Install dependencies use bun instead npm for better compile package:
+
 ```bash
-npm install
+bun install
 ```
+
 
 3. Create `.env` file from example:
 ```bash
@@ -342,10 +353,30 @@ cp .env.example .env
 
 4. Run the development server:
 ```bash
-npm run dev
+bun run dev
 ```
 
 The frontend will be available at `http://localhost:5173`
+
+## Run test server by use script
+```bash
+chmod +x test.sh && ./test.sh
+```
+it will response below
+
+```bash
+🧪 Testing Mission Planning Assistant...
+Waiting for backend...
+1. Testing backend health...
+✅ Backend OK
+2. Testing satellites endpoint...
+✅ Satellites OK
+3. Testing ground stations...
+✅ Ground stations OK
+4. Testing frontend...
+✅ Frontend OK
+✅ All tests complete!
+```
 
 ## 📡 Ground Stations
 
