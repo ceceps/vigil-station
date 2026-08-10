@@ -2,7 +2,7 @@
 
 Ground Station Contact Scheduling with AI Decision-Support | IBM Skillbuild Hackathon August Challenge - Advance Space Exploration with AI
 
-
+## Overview
 A satellite operations planning system built for the IBM Bob Space Exploration Hackathon. This application calculates contact windows between satellites and ground stations, detects scheduling conflicts, and provides AI-powered recommendations for conflict resolution.
 
 ## 🎯 Features
@@ -176,17 +176,6 @@ From zero to production-ready application:
 - 🎨 Customize UI/UX based on user feedback
 - 📊 Monitor performance in production
 
-### 🎯 Replicating This Success
-
-To build your own project with IBM Bob:
-
-1. **Prepare Documentation**: Brainstorming Design Thinking Worksheet with IBM Bob after that create clear requirement documents
-2. **Start Conversation**: Share your goals and constraints
-3. **Clarify Ambiguities**: Answer Bob's questions about design choices
-4. **Review Generated Code**: Understand what Bob creates
-5. **Report Issues**: Share complete error messages when problems occur
-6. **Iterate**: Let Bob refine and improve based on feedback
-7. **Test Thoroughly**: Use Bob's testing guides to validate functionality
 
 **IBM Bob is your AI pair programmer** - it handles the heavy lifting of code generation, debugging, and documentation, allowing you to focus on business logic, user experience, and strategic decisions.
 
