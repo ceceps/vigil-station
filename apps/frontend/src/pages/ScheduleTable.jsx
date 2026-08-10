@@ -12,7 +12,7 @@ function ScheduleTable() {
     satelliteId: '',
     groundStationId: '',
     startTime: new Date().toISOString().split('T')[0],
-    hours: 24
+    endTime: new Date(Date.now() + 86400000).toISOString().split('T')[0]
   })
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function ScheduleTable() {
       
       // Auto-load passes for all satellites on initial render
       const startTime = new Date(filters.startTime + 'T00:00:00Z')
-      const endTime = new Date(startTime.getTime() + filters.hours * 60 * 60 * 1000)
+      const endTime = new Date(filters.endTime + 'T23:59:59Z')
       
       const passesData = await api.getPasses({
         start: startTime.toISOString(),
@@ -59,7 +59,7 @@ function ScheduleTable() {
       setLoading(true)
       
       const startTime = new Date(filters.startTime + 'T00:00:00Z')
-      const endTime = new Date(startTime.getTime() + filters.hours * 60 * 60 * 1000)
+      const endTime = new Date(filters.endTime + 'T23:59:59Z')
       
       const params = {
         start: startTime.toISOString(),
@@ -163,13 +163,12 @@ function ScheduleTable() {
         </div>
 
         <div className="filter-group">
-          <label>Duration (hours):</label>
+          <label>End Date:</label>
           <input
-            type="number"
-            min="1"
-            max="168"
-            value={filters.hours}
-            onChange={(e) => setFilters({ ...filters, hours: parseInt(e.target.value) })}
+            type="date"
+            value={filters.endTime}
+            min={filters.startTime}
+            onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
           />
         </div>
       </div>
