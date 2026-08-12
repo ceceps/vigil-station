@@ -23,7 +23,7 @@ function ScheduleTable() {
     if (satellites.length > 0 && groundStations.length > 0) {
       loadPasses()
     }
-  }, [filters])
+  }, [satellites, groundStations, filters])
 
   const loadInitialData = async () => {
     try {
@@ -34,28 +34,17 @@ function ScheduleTable() {
       ])
       setSatellites(satsData.satellites || [])
       setGroundStations(gsData.ground_stations || [])
-      
-      // Auto-load passes for all satellites on initial render
-      const startTime = new Date(filters.startTime + 'T00:00:00Z')
-      const endTime = new Date(filters.endTime + 'T23:59:59Z')
-      
-      const passesData = await api.getPasses({
-        start: startTime.toISOString(),
-        end: endTime.toISOString()
-      })
-      setPasses(passesData.passes || [])
-      
       setError(null)
     } catch (err) {
       console.error('Failed to load initial data:', err)
       setError('Failed to load satellites and ground stations')
-    } finally {
       setLoading(false)
     }
   }
 
   const loadPasses = async () => {
     try {
+      setError(null)
       setLoading(true)
       
       const startTime = new Date(filters.startTime + 'T00:00:00Z')
