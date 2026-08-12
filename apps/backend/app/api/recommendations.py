@@ -18,6 +18,7 @@ from app.services.llm_reasoner import llm_reasoner
 from app.services.weather_client import weather_client
 from app.services.space_weather_client import space_weather_client
 from app.core.config import settings
+from app.core.cache import tle_cache
 
 logger = structlog.get_logger(__name__)
 
@@ -222,6 +223,12 @@ async def generate_recommendation(request: RecommendationRequest):
             space_weather_data
         )
         
+        # Persist recommendation in database
+        try:
+            tle_cache.store_recommendation(recommendation)
+        except Exception as err:
+            logger.warning("Failed to persist recommendation to database", error=str(err))
+
         logger.info(
             "Recommendation generated successfully",
             conflict_id=conflict_id,

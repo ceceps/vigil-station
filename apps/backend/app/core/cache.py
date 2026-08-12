@@ -332,6 +332,84 @@ class TLECacheManager:
         finally:
             db.close()
 
+    def store_recommendation(self, recommendation_data: Dict[str, Any]) -> None:
+        """Store AI-generated recommendation in PostgreSQL database."""
+        db = self._get_db()
+        try:
+            rec_id = f"rec_{recommendation_data['conflict_id']}"
+            alt_window = recommendation_data.get('alternative_window')
+            alt_window_str = json.dumps(alt_window) if alt_window else None
+
+            existing = db.query(Recommendation).filter(
+                Recommendation.conflict_id == recommendation_data['conflict_id']
+            ).first()
+
+            if existing:
+                existing.suggested_action = recommendation_data.get('suggested_action', 'reschedule')
+                existing.target_pass_id = recommendation_data.get('target_pass_id')
+                existing.alternative_window = alt_window_str
+                existing.reasoning = recommendation_data.get('reasoning', '')
+            else:
+                new_rec = Recommendation(
+                    id=rec_id,
+                    conflict_id=recommendation_data['conflict_id'],
+                    suggested_action=recommendation_data.get('suggested_action', 'reschedule'),
+                    target_pass_id=recommendation_data.get('target_pass_id'),
+                    alternative_window=alt_window_str,
+                    reasoning=recommendation_data.get('reasoning', '')
+                )
+                db.add(new_rec)
+            db.commit()
+            logger.info("Recommendation stored in database", conflict_id=recommendation_data['conflict_id'])
+        except Exception as e:
+            db.rollback()
+            logger.error("Failed to store recommendation in DB", error=str(e))
+        finally:
+            db.close()
+
+    def get_recommendation_by_conflict_id(self, conflict_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve recommendation for a specific conflict from database."""
+        db = self._get_db()
+        try:
+            rec = db.query(Recommendation).filter(
+                Recommendation.conflict_id == conflict_id
+            ).first()
+            if not rec:
+                return None
+            alt_window = json.loads(rec.alternative_window) if rec.alternative_window else None
+            return {
+                'id': rec.id,
+                'conflict_id': rec.conflict_id,
+                'suggested_action': rec.suggested_action,
+                'target_pass_id': rec.target_pass_id,
+                'alternative_window': alt_window,
+                'reasoning': rec.reasoning,
+                'created_at': ensure_utc(rec.created_at).isoformat()
+            }
+        finally:
+            db.close()
+
+    def get_all_recommendations(self) -> List[Dict[str, Any]]:
+        """Retrieve all stored recommendations from database."""
+        db = self._get_db()
+        try:
+            recs = db.query(Recommendation).order_by(Recommendation.created_at.desc()).all()
+            results = []
+            for rec in recs:
+                alt_window = json.loads(rec.alternative_window) if rec.alternative_window else None
+                results.append({
+                    'id': rec.id,
+                    'conflict_id': rec.conflict_id,
+                    'suggested_action': rec.suggested_action,
+                    'target_pass_id': rec.target_pass_id,
+                    'alternative_window': alt_window,
+                    'reasoning': rec.reasoning,
+                    'created_at': ensure_utc(rec.created_at).isoformat()
+                })
+            return results
+        finally:
+            db.close()
+
 
 # Global cache instance
 tle_cache = TLECacheManager()
