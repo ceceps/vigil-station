@@ -307,13 +307,22 @@ class TLECacheManager:
         finally:
             db.close()
 
-    def get_conflicts_from_db(self, ground_station_id: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Retrieve stored conflicts from database."""
+    def get_conflicts_from_db(
+        self,
+        ground_station_id: Optional[int] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None
+    ) -> List[Dict[str, Any]]:
+        """Retrieve stored conflicts from database with optional time range filter."""
         db = self._get_db()
         try:
             query = db.query(Conflict)
             if ground_station_id:
                 query = query.filter(Conflict.ground_station_id == ground_station_id)
+            if start_time:
+                query = query.filter(Conflict.created_at >= start_time)
+            if end_time:
+                query = query.filter(Conflict.created_at <= end_time)
             conflicts_orm = query.order_by(Conflict.created_at.desc()).all()
 
             results = []
@@ -389,11 +398,20 @@ class TLECacheManager:
         finally:
             db.close()
 
-    def get_all_recommendations(self) -> List[Dict[str, Any]]:
-        """Retrieve all stored recommendations from database."""
+    def get_all_recommendations(
+        self,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None
+    ) -> List[Dict[str, Any]]:
+        """Retrieve stored recommendations from database with optional time range filter."""
         db = self._get_db()
         try:
-            recs = db.query(Recommendation).order_by(Recommendation.created_at.desc()).all()
+            query = db.query(Recommendation)
+            if start_time:
+                query = query.filter(Recommendation.created_at >= start_time)
+            if end_time:
+                query = query.filter(Recommendation.created_at <= end_time)
+            recs = query.order_by(Recommendation.created_at.desc()).all()
             results = []
             for rec in recs:
                 alt_window = json.loads(rec.alternative_window) if rec.alternative_window else None
@@ -410,11 +428,21 @@ class TLECacheManager:
         finally:
             db.close()
 
-    def get_all_schedules(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Retrieve all stored schedules from database."""
+    def get_all_schedules(
+        self,
+        limit: Optional[int] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None
+    ) -> List[Dict[str, Any]]:
+        """Retrieve stored schedules from database with optional time range filter."""
         db = self._get_db()
         try:
-            query = db.query(Schedule).order_by(Schedule.updated_at.desc())
+            query = db.query(Schedule)
+            if start_time:
+                query = query.filter(Schedule.updated_at >= start_time)
+            if end_time:
+                query = query.filter(Schedule.updated_at <= end_time)
+            query = query.order_by(Schedule.updated_at.desc())
             if limit:
                 query = query.limit(limit)
             schedules_orm = query.all()

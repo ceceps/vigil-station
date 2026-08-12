@@ -2,12 +2,14 @@
 Analytics API router.
 Provides endpoints for AI-driven operational analysis based on historical database records.
 """
-from fastapi import APIRouter, HTTPException
+from datetime import datetime
+from fastapi import APIRouter, HTTPException, Query
+from typing import Optional, Dict, Any, List
 import structlog
-from typing import Dict, Any, List
 
 from app.core.cache import tle_cache
 from app.core.config import settings
+from app.services.llm_reasoner import llm_reasoner
 
 logger = structlog.get_logger(__name__)
 
@@ -15,15 +17,36 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
 @router.get("/insights")
-async def get_operational_insights() -> Dict[str, Any]:
+async def get_operational_insights(
+    start: Optional[str] = Query(None, description="Start date in ISO format or YYYY-MM-DD"),
+    end: Optional[str] = Query(None, description="End date in ISO format or YYYY-MM-DD")
+) -> Dict[str, Any]:
     """
-    Get AI-driven operational insights synthesized from database history.
+    Get AI-driven operational insights synthesized from database history for a given time range.
     Analyses conflict frequency, recommendation acceptance rates, and operator patterns.
     """
     try:
-        conflicts = tle_cache.get_conflicts_from_db()
-        recommendations = tle_cache.get_all_recommendations()
-        schedules = tle_cache.get_all_schedules()
+        start_dt = None
+        end_dt = None
+        time_label = "all-time database history"
+
+        if start:
+            start_str = start if 'T' in start else f"{start}T00:00:00+00:00"
+            start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00'))
+        if end:
+            end_str = end if 'T' in end else f"{end}T23:59:59+00:00"
+            end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00'))
+
+        if start and end:
+            time_label = f"{start} to {end}"
+        elif start:
+            time_label = f"from {start}"
+        elif end:
+            time_label = f"until {end}"
+
+        conflicts = tle_cache.get_conflicts_from_db(start_time=start_dt, end_time=end_dt)
+        recommendations = tle_cache.get_all_recommendations(start_time=start_dt, end_time=end_dt)
+        schedules = tle_cache.get_all_schedules(start_time=start_dt, end_time=end_dt)
 
         total_conflicts = len(conflicts)
         total_recommendations = len(recommendations)
@@ -51,34 +74,31 @@ async def get_operational_insights() -> Dict[str, Any]:
         # Extract override reasons for learning synthesis
         override_reasons = [s['override_reason'] for s in schedules if s.get('override_reason')]
 
-        # Synthesize executive summary reasoning
-        ai_summary = (
-            f"Based on historical database records, {total_conflicts} conflicts have been logged. "
-            f"Operators have made {total_decisions} decisions with a {approval_rate}% AI recommendation approval rate. "
+        summary_data = {
+            "total_conflicts": total_conflicts,
+            "total_recommendations": total_recommendations,
+            "total_decisions": total_decisions,
+            "approved_count": approved_count,
+            "overridden_count": overridden_count,
+            "approval_rate_percent": approval_rate,
+            "busiest_ground_station": station_name
+        }
+
+        # Generate AI Analyst Report with Claude
+        ai_analyst_report = await llm_reasoner.generate_analytics_report(
+            summary=summary_data,
+            recent_overrides=override_reasons,
+            time_range_label=time_label
         )
-        if station_name != "N/A":
-            ai_summary += f"Ground station '{station_name}' shows the highest contention frequency. "
-        
-        if override_reasons:
-            ai_summary += f"Recent operator overrides cite reasons such as: '{override_reasons[0]}'."
-        else:
-            ai_summary += "AI recommendations align well with mission priorities and constraints."
 
         return {
-            "summary": {
-                "total_conflicts": total_conflicts,
-                "total_recommendations": total_recommendations,
-                "total_decisions": total_decisions,
-                "approved_count": approved_count,
-                "overridden_count": overridden_count,
-                "approval_rate_percent": approval_rate,
-                "busiest_ground_station": station_name
-            },
-            "insights_reasoning": ai_summary,
+            "summary": summary_data,
+            "insights_reasoning": ai_analyst_report,
             "recent_overrides": override_reasons[:5],
             "conflicts_history": conflicts[:10],
             "recommendations_history": recommendations[:20],
-            "schedules_history": schedules[:20]
+            "schedules_history": schedules[:20],
+            "timeframe_label": time_label
         }
     except Exception as e:
         logger.error("Failed to generate analytics insights", error=str(e))

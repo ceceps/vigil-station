@@ -296,6 +296,49 @@ Be specific and reference actual data values in your reasoning. Do not use vague
             'reasoning': reasoning
         }
 
+    async def generate_analytics_report(
+        self,
+        summary: Dict[str, Any],
+        recent_overrides: List[str],
+        time_range_label: str = "selected timeframe"
+    ) -> str:
+        """Generate an executive AI Analyst report based on operational analytics."""
+        try:
+            overrides_formatted = "\n".join([f"- {r}" for r in recent_overrides]) if recent_overrides else "- None recorded"
+            prompt = (
+                f"You are an expert Space Mission Operational Analyst.\n"
+                f"Synthesize a professional executive AI Analyst Report based on the following operational metrics for timeframe ({time_range_label}):\n\n"
+                f"Summary Metrics:\n"
+                f"- Total Scheduling Conflicts: {summary.get('total_conflicts', 0)}\n"
+                f"- Total AI Recommendations Generated: {summary.get('total_recommendations', 0)}\n"
+                f"- Total Operator Decisions: {summary.get('total_decisions', 0)}\n"
+                f"- Approved Recommendations: {summary.get('approved_count', 0)}\n"
+                f"- Overridden Decisions: {summary.get('overridden_count', 0)}\n"
+                f"- Recommendation Approval Rate: {summary.get('approval_rate_percent', 100.0)}%\n"
+                f"- Busiest Contended Ground Station: {summary.get('busiest_ground_station', 'N/A')}\n\n"
+                f"Recent Operator Overrides & Reasons:\n{overrides_formatted}\n\n"
+                f"Provide a structured, executive 3-paragraph analysis with:\n"
+                f"1. Executive Operational Summary & Resource Contention Trends\n"
+                f"2. Operator Behavior & Risk Analysis (Approval vs Override Insights)\n"
+                f"3. Strategic Recommendations for Mission Operations Management.\n"
+                f"Keep your tone highly professional, precise, and actionable."
+            )
+
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=400,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.content[0].text
+        except Exception as e:
+            logger.error("Failed to generate AI analytics report with Claude", error=str(e))
+            return (
+                f"Operational Analysis ({time_range_label}): During this period, {summary.get('total_conflicts', 0)} scheduling conflicts were logged across ground station passes. "
+                f"Operators recorded {summary.get('total_decisions', 0)} decisions with a {summary.get('approval_rate_percent', 100.0)}% AI recommendation acceptance rate ({summary.get('approved_count', 0)} approved, {summary.get('overridden_count', 0)} overridden). "
+                f"Ground station '{summary.get('busiest_ground_station', 'N/A')}' represents the primary bottleneck for pass density. "
+                f"Operational performance remains stable with recommendations closely aligned with satellite contact constraints."
+            )
+
 
 # Global reasoner instance
 llm_reasoner = LLMReasoner()

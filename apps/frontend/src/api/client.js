@@ -102,8 +102,8 @@ export const api = {
   },
 
   // Analytics Insights
-  getAnalyticsInsights: async () => {
-    const response = await apiClient.get('/analytics/insights')
+  getAnalyticsInsights: async (params = {}) => {
+    const response = await apiClient.get('/analytics/insights', { params })
     return response.data
   },
 }
