@@ -3,6 +3,7 @@ import ScheduleTable from './pages/ScheduleTable'
 import ConflictPanel from './pages/ConflictPanel'
 import Approvals from './pages/Approvals'
 import SpaceWeatherPanel from './pages/SpaceWeatherPanel'
+import AnalyticsPanel from './pages/AnalyticsPanel'
 import LeafletMap from './components/LeafletMap'
 
 function App() {
@@ -92,6 +93,12 @@ function App() {
         >
           🌞 Space Weather
         </button>
+        <button
+          className={`nav-button ${activeTab === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          📊 Analytics
+        </button>
       </nav>
 
       <main className="app-main">
@@ -118,6 +125,7 @@ function App() {
               </div>
             )}
             {activeTab === 'space-weather' && <SpaceWeatherPanel />}
+            {activeTab === 'analytics' && <AnalyticsPanel />}
           </>
         )}
       </main>

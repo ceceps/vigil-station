@@ -8,7 +8,7 @@ import structlog
 
 from app.core.config import settings
 from app.models.database import init_db
-from app.api import satellites, ground_stations, passes, conflicts, recommendations, schedule, space_weather
+from app.api import satellites, ground_stations, passes, conflicts, recommendations, schedule, space_weather, analytics
 
 # Configure structured logging
 structlog.configure(
@@ -47,6 +47,7 @@ app.include_router(conflicts.router)
 app.include_router(recommendations.router)
 app.include_router(schedule.router)
 app.include_router(space_weather.router)
+app.include_router(analytics.router)
 
 
 @app.get("/")

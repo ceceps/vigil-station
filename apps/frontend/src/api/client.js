@@ -100,6 +100,12 @@ export const api = {
     const response = await apiClient.get('/space-weather', { params })
     return response.data
   },
+
+  // Analytics Insights
+  getAnalyticsInsights: async () => {
+    const response = await apiClient.get('/analytics/insights')
+    return response.data
+  },
 }
 
 export default api
