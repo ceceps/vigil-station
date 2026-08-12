@@ -195,13 +195,13 @@ function Approvals() {
             </div>
             <div className="stat-card">
               <div className="stat-value">
-                {Object.values(approvals).filter(a => a.status === 'approved').length}
+                {conflicts.filter(c => approvals[getConflictId(c)]?.status === 'approved').length}
               </div>
               <div className="stat-label">Approved</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">
-                {Object.values(approvals).filter(a => a.status === 'overridden').length}
+                {conflicts.filter(c => approvals[getConflictId(c)]?.status === 'overridden').length}
               </div>
               <div className="stat-label">Overridden</div>
             </div>
@@ -230,7 +230,7 @@ function Approvals() {
               style={{ opacity: filterStatus === 'approved' ? 1 : 0.7 }}
               onClick={() => setFilterStatus('approved')}
             >
-              ✅ Approved ({Object.values(approvals).filter(a => a.status === 'approved').length})
+              ✅ Approved ({conflicts.filter(c => approvals[getConflictId(c)]?.status === 'approved').length})
             </button>
             <button
               type="button"
@@ -238,7 +238,7 @@ function Approvals() {
               style={{ opacity: filterStatus === 'overridden' ? 1 : 0.7 }}
               onClick={() => setFilterStatus('overridden')}
             >
-              ⚠️ Overridden ({Object.values(approvals).filter(a => a.status === 'overridden').length})
+              ⚠️ Overridden ({conflicts.filter(c => approvals[getConflictId(c)]?.status === 'overridden').length})
             </button>
           </div>
 
