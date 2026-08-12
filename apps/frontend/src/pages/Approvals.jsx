@@ -13,6 +13,7 @@ function Approvals() {
   const [error, setError] = useState(null)
   const [processingApproval, setProcessingApproval] = useState(null)
   const [loadingRecommendation, setLoadingRecommendation] = useState(null)
+  const [filterStatus, setFilterStatus] = useState('all') // 'all' | 'pending' | 'approved' | 'overridden'
 
   useEffect(() => {
     loadData()
@@ -30,17 +31,43 @@ function Approvals() {
         end: endTime.toISOString()
       }
       
-      const [satsData, gsData, conflictsData, passesData] = await Promise.all([
+      const [satsData, gsData, conflictsData, passesData, analyticsData] = await Promise.all([
         api.getSatellites(),
         api.getGroundStations(),
         api.getConflicts(params),
-        api.getPasses(params)
+        api.getPasses(params),
+        api.getAnalyticsInsights().catch(() => ({}))
       ])
       
       setSatellites(satsData.satellites || [])
       setGroundStations(gsData.ground_stations || [])
       setConflicts(conflictsData.conflicts || [])
       setPasses(passesData.passes || [])
+
+      // Hydrate recommendations from DB history
+      const initialRecs = {}
+      const recList = analyticsData.recommendations_history || []
+      recList.forEach(r => {
+        if (r.conflict_id) {
+          initialRecs[r.conflict_id] = r
+        }
+      })
+      setRecommendations(initialRecs)
+
+      // Hydrate approvals from DB history
+      const initialApprovals = {}
+      const schedList = analyticsData.schedules_history || []
+      schedList.forEach(s => {
+        const matchingRec = recList.find(r => r.target_pass_id === s.id || r.conflict_id === s.id)
+        if (matchingRec) {
+          initialApprovals[matchingRec.conflict_id] = {
+            status: s.approved ? 'approved' : 'overridden',
+            override_reason: s.override_reason
+          }
+        }
+      })
+      setApprovals(initialApprovals)
+
       setError(null)
     } catch (err) {
       console.error('Failed to load data:', err)
@@ -161,7 +188,9 @@ function Approvals() {
         <>
           <div className="stats">
             <div className="stat-card">
-              <div className="stat-value">{conflicts.length}</div>
+              <div className="stat-value">
+                {conflicts.filter(c => !approvals[getConflictId(c)]).length}
+              </div>
               <div className="stat-label">Pending Approvals</div>
             </div>
             <div className="stat-card">
@@ -178,15 +207,66 @@ function Approvals() {
             </div>
           </div>
 
-          {conflicts.length === 0 ? (
+          <div className="filters" style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className={`refresh-button ${filterStatus === 'all' ? 'active' : ''}`}
+              style={{ opacity: filterStatus === 'all' ? 1 : 0.7 }}
+              onClick={() => setFilterStatus('all')}
+            >
+              All ({conflicts.length})
+            </button>
+            <button
+              type="button"
+              className={`refresh-button ${filterStatus === 'pending' ? 'active' : ''}`}
+              style={{ opacity: filterStatus === 'pending' ? 1 : 0.7 }}
+              onClick={() => setFilterStatus('pending')}
+            >
+              ⏳ Pending ({conflicts.filter(c => !approvals[getConflictId(c)]).length})
+            </button>
+            <button
+              type="button"
+              className={`refresh-button ${filterStatus === 'approved' ? 'active' : ''}`}
+              style={{ opacity: filterStatus === 'approved' ? 1 : 0.7 }}
+              onClick={() => setFilterStatus('approved')}
+            >
+              ✅ Approved ({Object.values(approvals).filter(a => a.status === 'approved').length})
+            </button>
+            <button
+              type="button"
+              className={`refresh-button ${filterStatus === 'overridden' ? 'active' : ''}`}
+              style={{ opacity: filterStatus === 'overridden' ? 1 : 0.7 }}
+              onClick={() => setFilterStatus('overridden')}
+            >
+              ⚠️ Overridden ({Object.values(approvals).filter(a => a.status === 'overridden').length})
+            </button>
+          </div>
+
+          {conflicts.filter(c => {
+            const cid = getConflictId(c)
+            const app = approvals[cid]
+            if (filterStatus === 'pending') return !app
+            if (filterStatus === 'approved') return app?.status === 'approved'
+            if (filterStatus === 'overridden') return app?.status === 'overridden'
+            return true
+          }).length === 0 ? (
             <div className="no-conflicts">
               <div className="success-icon">✅</div>
-              <h3>No Pending Approvals</h3>
-              <p>All conflicts have been resolved or no conflicts exist</p>
+              <h3>No Approvals in Selected Filter</h3>
+              <p>No conflicts match status "{filterStatus}"</p>
             </div>
           ) : (
             <div className="approvals-list">
-              {conflicts.map((conflict) => {
+              {conflicts
+                .filter(c => {
+                  const cid = getConflictId(c)
+                  const app = approvals[cid]
+                  if (filterStatus === 'pending') return !app
+                  if (filterStatus === 'approved') return app?.status === 'approved'
+                  if (filterStatus === 'overridden') return app?.status === 'overridden'
+                  return true
+                })
+                .map((conflict) => {
                 const conflictId = getConflictId(conflict)
                 const pass1 = getPassDetails(conflict.pass_ids[0])
                 const pass2 = getPassDetails(conflict.pass_ids[1])

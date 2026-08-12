@@ -77,7 +77,8 @@ async def get_operational_insights() -> Dict[str, Any]:
             "insights_reasoning": ai_summary,
             "recent_overrides": override_reasons[:5],
             "conflicts_history": conflicts[:10],
-            "recommendations_history": recommendations[:10]
+            "recommendations_history": recommendations[:20],
+            "schedules_history": schedules[:20]
         }
     except Exception as e:
         logger.error("Failed to generate analytics insights", error=str(e))
