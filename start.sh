@@ -1,11 +1,18 @@
 #!/bin/bash
 # Start Mission Planning Assistant: backend (background) + frontend (foreground)
-# Backend is started first so the vite proxy target is available immediately.
+# The frontend is served as a production build via vite preview, which is
+# reliable behind the platform's preview proxy (the dev server can hang there).
 
 set -e
 
-BACKEND_DIR="$(cd "$(dirname "$0")/apps/backend" && pwd)"
-FRONTEND_DIR="$(cd "$(dirname "$0")/apps/frontend" && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKEND_DIR="$ROOT_DIR/apps/backend"
+FRONTEND_DIR="$ROOT_DIR/apps/frontend"
+
+# Build the frontend production bundle
+echo "Building frontend..."
+cd "$FRONTEND_DIR"
+npm run build
 
 # Start backend in background
 cd "$BACKEND_DIR"
@@ -25,6 +32,6 @@ for i in {1..30}; do
   sleep 1
 done
 
-# Start frontend in foreground (this is the exposed port)
+# Serve the production build in foreground (this is the exposed port)
 cd "$FRONTEND_DIR"
-bun run dev --host
+npm run preview

@@ -6,6 +6,19 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
+    allowedHosts: ['.monkeycode-ai.live'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  },
+  preview: {
+    port: 5173,
+    host: true,
+    allowedHosts: ['.monkeycode-ai.live'],
     proxy: {
       '/api': {
         target: 'http://localhost:8000',

@@ -96,7 +96,7 @@ class TestE2EWorkflow:
         mock_store_schedule.return_value = None
         
         # Mock LLM recommendation - will be set dynamically based on actual conflict_id
-        def mock_llm_response(conflict, alternatives, weather):
+        def mock_llm_response(conflict, alternatives, weather=None, space_weather=None):
             return {
                 'conflict_id': conflict['id'],
                 'suggested_action': 'reschedule',
@@ -192,7 +192,7 @@ class TestE2EWorkflow:
         mock_calc_passes.return_value = mock_passes
         mock_store_schedule.return_value = None
         
-        def mock_llm_response_override(conflict, alternatives, weather):
+        def mock_llm_response_override(conflict, alternatives, weather=None, space_weather=None):
             return {
                 'conflict_id': conflict['id'],
                 'suggested_action': 'reschedule',

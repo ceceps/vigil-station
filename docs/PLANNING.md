@@ -51,12 +51,12 @@ Today this process is often done manually or with disconnected tools (orbit calc
 ## 5. Requirements
 
 ### Must-Have (P0) — required for the demo
-- [ ] Fetch and cache TLE data from CelesTrak/Space-Track for a limited satellite group (e.g., a specific weather/active group, not the entire catalog)
-- [ ] Calculate pass windows (start time, end time, max elevation) for each satellite × ground station combination
-- [ ] Detect schedule conflicts between overlapping pass windows at the same ground station
-- [ ] AI (LLM) generates a conflict-resolution recommendation in natural language, with reasoning grounded in actual data (elevation, alternative timing)
-- [ ] UI displays a table/list of scheduled passes with status (clear / conflict / rescheduled)
-- [ ] Operator can approve/override the recommendation
+- [x] Fetch and cache TLE data from CelesTrak/Space-Track for a limited satellite group (e.g., a specific weather/active group, not the entire catalog)
+- [x] Calculate pass windows (start time, end time, max elevation) for each satellite × ground station combination
+- [x] Detect schedule conflicts between overlapping pass windows at the same ground station
+- [x] AI (LLM) generates a conflict-resolution recommendation in natural language, with reasoning grounded in actual data (elevation, alternative timing)
+- [x] UI displays a table/list of scheduled passes with status (clear / conflict / rescheduled)
+- [x] Operator can approve/override the recommendation
 
 **Acceptance criteria (example):**
 - Given two satellites have overlapping pass windows at the same ground station
@@ -64,10 +64,10 @@ Today this process is often done manually or with disconnected tools (orbit calc
 - Then the system displays the conflict and the AI provides a valid alternative-time recommendation (elevation above the minimum threshold)
 
 ### Nice-to-Have (P1) — if time allows
-- [ ] Integrate weather data (cloud cover) as an additional recommendation factor
-- [ ] Integrate space weather data (NASA DONKI) to flag potential link disturbances
-- [ ] Simple 2D map showing ground station positions and satellite ground tracks
-- [ ] Decision history log (approve/override) for transparency
+- [x] Integrate weather data (cloud cover) as an additional recommendation factor
+- [x] Integrate space weather data (NASA DONKI) to flag potential link disturbances
+- [x] Simple 2D map showing ground station positions and satellite ground tracks
+- [x] Decision history log (approve/override) for transparency
 
 ### Future Considerations (P2) — out of scope for v1, but architecturally anticipated
 - [ ] Multi-operator/multi-tenant support

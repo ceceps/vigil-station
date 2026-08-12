@@ -143,9 +143,11 @@ class WeatherClient:
         closest_idx = 0
         min_diff = float('inf')
         
+        target_time_naive = target_time.replace(tzinfo=None) if target_time.tzinfo else target_time
         for idx, time_str in enumerate(times):
             time_obj = datetime.fromisoformat(time_str)
-            diff = abs((time_obj - target_time).total_seconds())
+            time_obj_naive = time_obj.replace(tzinfo=None) if time_obj.tzinfo else time_obj
+            diff = abs((time_obj_naive - target_time_naive).total_seconds())
             if diff < min_diff:
                 min_diff = diff
                 closest_idx = idx
