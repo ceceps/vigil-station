@@ -12,6 +12,7 @@ function Approvals() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [processingApproval, setProcessingApproval] = useState(null)
+  const [loadingRecommendation, setLoadingRecommendation] = useState(null)
 
   useEffect(() => {
     loadData()
@@ -51,6 +52,7 @@ function Approvals() {
 
   const generateRecommendation = async (conflictId) => {
     try {
+      setLoadingRecommendation(conflictId)
       const data = await api.generateRecommendation(conflictId)
       setRecommendations(prev => ({
         ...prev,
@@ -59,6 +61,8 @@ function Approvals() {
     } catch (err) {
       console.error('Failed to generate recommendation:', err)
       setError(`Failed to generate recommendation for ${conflictId}`)
+    } finally {
+      setLoadingRecommendation(null)
     }
   }
 
@@ -217,8 +221,15 @@ function Approvals() {
                       <button
                         className="generate-recommendation-button"
                         onClick={() => generateRecommendation(conflictId)}
+                        disabled={loadingRecommendation === conflictId}
                       >
-                        🤖 Generate Recommendation First
+                        {loadingRecommendation === conflictId ? (
+                          <>
+                            <span className="spinner-small"></span> Generating Recommendation...
+                          </>
+                        ) : (
+                          '🤖 Generate Recommendation First'
+                        )}
                       </button>
                     ) : (
                       <>
