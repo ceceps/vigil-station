@@ -103,19 +103,51 @@ async def generate_recommendation(request: RecommendationRequest):
             )
             passes_by_station[gs['id']] = passes
         
+        # Robust pass matching helper
+        def find_pass_in_list(pass_id, passes_list):
+            # 1. Exact ID match
+            for p in passes_list:
+                if p['id'] == pass_id:
+                    return p
+            # 2. Proximity match by satellite_id and start_time (within 60s)
+            try:
+                parts = pass_id.split('_')
+                if len(parts) >= 4:
+                    sat_id = int(parts[1])
+                    ts_str = parts[-1]
+                    if len(ts_str) == 14 and ts_str.isdigit():
+                        target_dt = datetime.strptime(ts_str, '%Y%m%d%H%M%S')
+                        for p in passes_list:
+                            if p['satellite_id'] == sat_id:
+                                p_dt = p['start_time']
+                                if isinstance(p_dt, str):
+                                    p_dt = datetime.fromisoformat(p_dt.replace('Z', ''))
+                                p_dt = p_dt.replace(tzinfo=None)
+                                if abs((p_dt - target_dt).total_seconds()) <= 60:
+                                    return p
+            except Exception:
+                pass
+            return None
+
         # Find the specific passes involved in the conflict
         target_pass1 = None
         target_pass2 = None
         ground_station_id = None
         
         for gs_id, passes in passes_by_station.items():
-            for p in passes:
-                if p['id'] == pass1_id:
-                    target_pass1 = p
-                    ground_station_id = gs_id
-                elif p['id'] == pass2_id:
-                    target_pass2 = p
-                    ground_station_id = gs_id
+            p1 = find_pass_in_list(pass1_id, passes)
+            p2 = find_pass_in_list(pass2_id, passes)
+            if p1 and p2:
+                target_pass1 = p1
+                target_pass2 = p2
+                ground_station_id = gs_id
+                break
+            elif p1 and not target_pass1:
+                target_pass1 = p1
+                ground_station_id = gs_id
+            elif p2 and not target_pass2:
+                target_pass2 = p2
+                ground_station_id = gs_id
         
         if not target_pass1 or not target_pass2:
             raise HTTPException(
@@ -129,15 +161,22 @@ async def generate_recommendation(request: RecommendationRequest):
         target_pass2['start_time'] = serialize_datetime(target_pass2['start_time'])
         target_pass2['end_time'] = serialize_datetime(target_pass2['end_time'])
         
-        # Reconstruct the conflict
-        overlap = conflict_detector._check_overlap(target_pass1, target_pass2)
-        if not overlap:
+        # Verify if passes overlap in time
+        dt1_start = datetime.fromisoformat(target_pass1['start_time'].replace('Z', '+00:00'))
+        dt1_end = datetime.fromisoformat(target_pass1['end_time'].replace('Z', '+00:00'))
+        dt2_start = datetime.fromisoformat(target_pass2['start_time'].replace('Z', '+00:00'))
+        dt2_end = datetime.fromisoformat(target_pass2['end_time'].replace('Z', '+00:00'))
+
+        if dt1_start > dt2_end or dt2_start > dt1_end:
             raise HTTPException(
                 status_code=400,
                 detail="Specified passes do not overlap"
             )
-        
-        overlap_start, overlap_end = overlap
+
+        overlap_start = max(dt1_start, dt2_start)
+        overlap_end = min(dt1_end, dt2_end)
+        if overlap_end < overlap_start:
+            overlap_end = overlap_start
         
         conflict = {
             'id': conflict_id,
