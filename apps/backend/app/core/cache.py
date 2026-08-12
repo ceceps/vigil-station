@@ -271,6 +271,67 @@ class TLECacheManager:
         finally:
             db.close()
 
+    def store_conflicts(self, conflicts: List[Dict[str, Any]]) -> None:
+        """Store detected conflicts in PostgreSQL database."""
+        db = self._get_db()
+        try:
+            for c in conflicts:
+                overlap_start = c['overlap_start']
+                if isinstance(overlap_start, str):
+                    overlap_start = datetime.fromisoformat(overlap_start.replace('Z', '+00:00'))
+                overlap_start = ensure_utc(overlap_start)
+
+                overlap_end = c['overlap_end']
+                if isinstance(overlap_end, str):
+                    overlap_end = datetime.fromisoformat(overlap_end.replace('Z', '+00:00'))
+                overlap_end = ensure_utc(overlap_end)
+
+                pass_ids_str = json.dumps(c['pass_ids']) if isinstance(c['pass_ids'], list) else str(c['pass_ids'])
+
+                existing = db.query(Conflict).filter(Conflict.id == c['id']).first()
+                if not existing:
+                    new_conflict = Conflict(
+                        id=c['id'],
+                        ground_station_id=c['ground_station_id'],
+                        pass_ids=pass_ids_str,
+                        overlap_start=overlap_start,
+                        overlap_end=overlap_end,
+                        resolved=c.get('resolved', False)
+                    )
+                    db.add(new_conflict)
+            db.commit()
+            logger.info("Stored conflicts in database", count=len(conflicts))
+        except Exception as e:
+            db.rollback()
+            logger.error("Failed to store conflicts in DB", error=str(e))
+        finally:
+            db.close()
+
+    def get_conflicts_from_db(self, ground_station_id: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Retrieve stored conflicts from database."""
+        db = self._get_db()
+        try:
+            query = db.query(Conflict)
+            if ground_station_id:
+                query = query.filter(Conflict.ground_station_id == ground_station_id)
+            conflicts_orm = query.order_by(Conflict.created_at.desc()).all()
+
+            results = []
+            for c in conflicts_orm:
+                pass_ids = json.loads(c.pass_ids) if c.pass_ids.startswith('[') else [c.pass_ids]
+                results.append({
+                    'id': c.id,
+                    'ground_station_id': c.ground_station_id,
+                    'pass_ids': pass_ids,
+                    'overlap_start': ensure_utc(c.overlap_start).isoformat(),
+                    'overlap_end': ensure_utc(c.overlap_end).isoformat(),
+                    'resolved': c.resolved,
+                    'created_at': ensure_utc(c.created_at).isoformat()
+                })
+            return results
+        finally:
+            db.close()
+
 
 # Global cache instance
 tle_cache = TLECacheManager()

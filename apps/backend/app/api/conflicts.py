@@ -12,6 +12,7 @@ from app.services.spacetrack_client import spacetrack_service
 from app.services.orbit_calc import orbit_calculator
 from app.services.conflict_detector import conflict_detector
 from app.core.config import settings
+from app.core.cache import tle_cache
 
 logger = structlog.get_logger(__name__)
 
@@ -86,6 +87,12 @@ async def get_conflicts(
         # Detect conflicts
         all_conflicts = conflict_detector.detect_conflicts_all_stations(passes_by_station)
         
+        # Persist detected conflicts in database
+        try:
+            tle_cache.store_conflicts(all_conflicts)
+        except Exception as err:
+            logger.warning("Failed to persist conflicts to database", error=str(err))
+
         # Convert to response format (remove full pass data from response)
         conflict_responses = [
             ConflictResponse(
