@@ -110,7 +110,8 @@ function ConflictPanel() {
 
   const getSatelliteName = (noradId) => {
     const sat = satellites.find(s => s.norad_id === noradId)
-    return sat ? sat.name : `SAT-${noradId}`
+    const rawName = sat ? sat.name : `SAT-${noradId}`
+    return rawName.replace(/^0\s+/, '')
   }
 
   const getGroundStationName = (gsId) => {
@@ -123,12 +124,14 @@ function ConflictPanel() {
   }
 
   const calculateOverlapDuration = (overlapStart, overlapEnd) => {
-    if (!overlapStart || !overlapEnd) return 0
+    if (!overlapStart || !overlapEnd) return '0 min'
     const start = new Date(overlapStart)
     const end = new Date(overlapEnd)
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0
-    const durationMs = end - start
-    return Math.round(durationMs / 60000) // minutes
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return '0 min'
+    const durationMs = Math.max(0, end - start)
+    const minutes = Math.round(durationMs / 60000)
+    if (minutes === 0 && durationMs > 0) return '< 1 min'
+    return `${minutes} min`
   }
 
   const getConflictId = (conflict) => {
@@ -229,7 +232,7 @@ function ConflictPanel() {
                     <div className="conflict-header">
                       <h3>⚠️ Conflict at {getGroundStationName(conflict.ground_station_id)}</h3>
                       <span className="overlap-badge">
-                        {overlapDuration > 0 ? `${overlapDuration} min overlap` : 'Calculating...'}
+                        {overlapDuration} overlap
                       </span>
                     </div>
 

@@ -88,7 +88,8 @@ function ScheduleTable() {
 
   const getSatelliteName = (noradId) => {
     const sat = satellites.find(s => s.norad_id === noradId)
-    return sat ? sat.name : `SAT-${noradId}`
+    const rawName = sat ? sat.name : `SAT-${noradId}`
+    return rawName.replace(/^0\s+/, '')
   }
 
   const getGroundStationName = (gsId) => {
