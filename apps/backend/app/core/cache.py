@@ -410,6 +410,34 @@ class TLECacheManager:
         finally:
             db.close()
 
+    def get_all_schedules(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Retrieve all stored schedules from database."""
+        db = self._get_db()
+        try:
+            query = db.query(Schedule).order_by(Schedule.updated_at.desc())
+            if limit:
+                query = query.limit(limit)
+            schedules_orm = query.all()
+            
+            results = []
+            for s in schedules_orm:
+                results.append({
+                    'id': s.id,
+                    'satellite_id': s.satellite_id,
+                    'ground_station_id': s.ground_station_id,
+                    'start_time': ensure_utc(s.start_time).isoformat(),
+                    'end_time': ensure_utc(s.end_time).isoformat(),
+                    'max_elevation_deg': s.max_elevation_deg,
+                    'status': s.status,
+                    'approved': s.approved,
+                    'override_reason': s.override_reason,
+                    'created_at': ensure_utc(s.created_at).isoformat(),
+                    'updated_at': ensure_utc(s.updated_at).isoformat()
+                })
+            return results
+        finally:
+            db.close()
+
 
 # Global cache instance
 tle_cache = TLECacheManager()
