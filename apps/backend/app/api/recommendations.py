@@ -80,9 +80,17 @@ async def generate_recommendation(request: RecommendationRequest):
         # Fetch TLE data and calculate passes to reconstruct the conflict
         tles = await spacetrack_service.fetch_tles_for_group(settings.satellite_group)
         
-        # Use a 48-hour window to find the passes
-        start_time = datetime.utcnow() - timedelta(hours=24)
-        end_time = datetime.utcnow() + timedelta(hours=48)
+        # Determine reference time from pass ID timestamp if available
+        ref_time = datetime.utcnow()
+        try:
+            ts_str = pass1_id.split('_')[-1]
+            if len(ts_str) == 14 and ts_str.isdigit():
+                ref_time = datetime.strptime(ts_str, '%Y%m%d%H%M%S')
+        except Exception:
+            pass
+
+        start_time = ref_time - timedelta(hours=24)
+        end_time = ref_time + timedelta(hours=48)
         
         # Calculate passes for all ground stations
         passes_by_station = {}
