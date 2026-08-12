@@ -9,10 +9,13 @@ ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKEND_DIR="$ROOT_DIR/apps/backend"
 FRONTEND_DIR="$ROOT_DIR/apps/frontend"
 
+# Free ports and stop any running instances first
+"$ROOT_DIR/stop.sh"
+
 # Build the frontend production bundle
-echo "Building frontend..."
+echo "Building frontend with bun..."
 cd "$FRONTEND_DIR"
-npm run build
+bun run build
 
 # Start backend in background
 cd "$BACKEND_DIR"
@@ -34,4 +37,4 @@ done
 
 # Serve the production build in foreground (this is the exposed port)
 cd "$FRONTEND_DIR"
-npm run preview
+bun run preview
