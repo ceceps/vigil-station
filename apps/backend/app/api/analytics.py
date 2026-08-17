@@ -74,6 +74,18 @@ async def get_operational_insights(
         # Extract override reasons for learning synthesis
         override_reasons = [s['override_reason'] for s in schedules if s.get('override_reason')]
 
+        # Determine overall database data dates (spanning all records)
+        all_conflicts = tle_cache.get_conflicts_from_db()
+        data_dates = []
+        for c in all_conflicts:
+            if c.get('overlap_start'):
+                data_dates.append(c['overlap_start'][:10])
+            if c.get('created_at'):
+                data_dates.append(c['created_at'][:10])
+        
+        data_start_date = min(data_dates) if data_dates else datetime.utcnow().strftime("%Y-%m-%d")
+        data_end_date = max(data_dates) if data_dates else datetime.utcnow().strftime("%Y-%m-%d")
+
         summary_data = {
             "total_conflicts": total_conflicts,
             "total_recommendations": total_recommendations,
@@ -81,7 +93,9 @@ async def get_operational_insights(
             "approved_count": approved_count,
             "overridden_count": overridden_count,
             "approval_rate_percent": approval_rate,
-            "busiest_ground_station": station_name
+            "busiest_ground_station": station_name,
+            "data_start_date": data_start_date,
+            "data_end_date": data_end_date
         }
 
         # Generate AI Analyst Report with Claude
@@ -98,7 +112,11 @@ async def get_operational_insights(
             "conflicts_history": conflicts[:10],
             "recommendations_history": recommendations[:20],
             "schedules_history": schedules[:20],
-            "timeframe_label": time_label
+            "timeframe_label": time_label,
+            "data_start_date": data_start_date,
+            "data_end_date": data_end_date,
+            "active_start_date": start or data_start_date,
+            "active_end_date": end or data_end_date
         }
     except Exception as e:
         logger.error("Failed to generate analytics insights", error=str(e))

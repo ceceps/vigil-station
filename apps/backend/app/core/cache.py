@@ -320,10 +320,10 @@ class TLECacheManager:
             if ground_station_id:
                 query = query.filter(Conflict.ground_station_id == ground_station_id)
             if start_time:
-                query = query.filter(Conflict.created_at >= start_time)
+                query = query.filter((Conflict.created_at >= start_time) | (Conflict.overlap_start >= start_time))
             if end_time:
-                query = query.filter(Conflict.created_at <= end_time)
-            conflicts_orm = query.order_by(Conflict.created_at.desc()).all()
+                query = query.filter((Conflict.created_at <= end_time) | (Conflict.overlap_start <= end_time))
+            conflicts_orm = query.order_by(Conflict.overlap_start.desc(), Conflict.created_at.desc()).all()
 
             results = []
             for c in conflicts_orm:

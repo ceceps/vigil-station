@@ -11,7 +11,7 @@ function AnalyticsPanel() {
   const [activePreset, setActivePreset] = useState('all')
 
   useEffect(() => {
-    loadAnalytics()
+    loadAnalytics('', '', 'all')
   }, [])
 
   const handlePresetChange = (presetKey) => {
@@ -22,6 +22,7 @@ function AnalyticsPanel() {
 
     if (presetKey === 'today') {
       start = now.toISOString().split('T')[0]
+      end = now.toISOString().split('T')[0]
     } else if (presetKey === '7d') {
       const d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
       start = d.toISOString().split('T')[0]
@@ -29,16 +30,16 @@ function AnalyticsPanel() {
       const d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
       start = d.toISOString().split('T')[0]
     } else if (presetKey === 'all') {
-      start = ''
-      end = ''
+      start = data?.data_start_date || ''
+      end = data?.data_end_date || ''
     }
 
     setStartTime(start)
     setEndTime(end)
-    loadAnalytics(start, end)
+    loadAnalytics(start, end, presetKey)
   }
 
-  const loadAnalytics = async (customStart = startTime, customEnd = endTime) => {
+  const loadAnalytics = async (customStart = startTime, customEnd = endTime, presetKey = activePreset) => {
     try {
       setLoading(true)
       const params = {}
@@ -48,6 +49,14 @@ function AnalyticsPanel() {
       const result = await api.getAnalyticsInsights(params)
       setData(result)
       setError(null)
+
+      // Auto-set the date inputs from the data span (e.g. 202 logged conflicts) if all-time or empty
+      if (result.data_start_date && result.data_end_date) {
+        if (presetKey === 'all' || (!customStart && !customEnd)) {
+          setStartTime(result.data_start_date)
+          setEndTime(result.data_end_date)
+        }
+      }
     } catch (err) {
       console.error('Failed to load analytics:', err)
       setError('Failed to load operational analytics data')
@@ -132,12 +141,18 @@ function AnalyticsPanel() {
         <button
           type="button"
           className="refresh-button"
-          onClick={() => loadAnalytics(startTime, endTime)}
+          onClick={() => loadAnalytics(startTime, endTime, 'custom')}
           style={{ marginTop: '1.2rem', padding: '0.5rem 1rem' }}
         >
           🔍 Apply Filter
         </button>
       </div>
+
+      {data?.data_start_date && data?.data_end_date && (
+        <div style={{ fontSize: '0.85rem', color: 'var(--subtitle-color)', marginTop: '-0.8rem', marginBottom: '1.2rem' }}>
+          📅 <strong>Dataset Scope:</strong> {data.data_start_date} to {data.data_end_date} ({data.summary.total_conflicts} conflicts recorded in database)
+        </div>
+      )}
 
       {error && (
         <div className="error-message">
