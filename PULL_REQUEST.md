@@ -42,6 +42,9 @@ This PR completes all P0 and P1 scope requirements for the **Mission Planning As
 ---
 
 ## 📜 Commit History
+- `ff21fd7` `fix: analytics layout, dataset scope display, and date range filtering`
+- `7839d34` `docs: update features and tech stack progress in README.md`
+- `a00aedb` `docs: add PULL_REQUEST.md summary document`
 - `d5f2555` `feat: add date range filter and AI Analyst report synthesis in Analytics tab`
 - `9b0d9dd` `fix: align approval stat card counts with active conflict view scope`
 - `fbeaf9c` `feat: persist approval state across tab switches with DB hydration and status filter tabs`
