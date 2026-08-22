@@ -10,7 +10,8 @@ vi.mock('../api/client', () => ({
     getConflicts: vi.fn(),
     getPasses: vi.fn(),
     generateRecommendation: vi.fn(),
-    approveSchedule: vi.fn()
+    approveSchedule: vi.fn(),
+    getAnalyticsInsights: vi.fn()
   }
 }))
 
@@ -48,6 +49,7 @@ describe('Approvals', () => {
     api.getGroundStations.mockResolvedValue(mockGroundStations)
     api.getPasses.mockResolvedValue(mockPasses)
     api.getConflicts.mockResolvedValue(mockConflicts)
+    api.getAnalyticsInsights.mockResolvedValue({ recommendations_history: [], schedules_history: [] })
     api.generateRecommendation.mockResolvedValue({
       recommendation: { suggested_action: 'reschedule', target_pass_id: 'pass_1', reasoning: 'Test reasoning' }
     })
@@ -122,7 +124,7 @@ describe('Approvals', () => {
 
     render(<Approvals />)
     await waitFor(() => {
-      expect(screen.getByText('No Pending Approvals')).toBeTruthy()
+      expect(screen.getByText('No Approvals in Selected Filter')).toBeTruthy()
     })
   })
 

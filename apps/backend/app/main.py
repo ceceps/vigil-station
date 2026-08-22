@@ -2,6 +2,7 @@
 Mission Planning Assistant - FastAPI Backend
 Main application entry point with router registration and middleware setup.
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
@@ -9,6 +10,7 @@ import structlog
 from app.core.config import settings
 from app.models.database import init_db
 from app.api import satellites, ground_stations, passes, conflicts, recommendations, schedule, space_weather, analytics
+from app.services.spacetrack_client import spacetrack_service
 
 # Configure structured logging
 structlog.configure(
@@ -21,13 +23,50 @@ structlog.configure(
 
 logger = structlog.get_logger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler for startup and shutdown."""
+    # Startup logic
+    logger.info(
+        "Mission Planning Assistant starting",
+        database="postgresql",
+        satellite_group=settings.satellite_group,
+        ground_stations=len(settings.ground_stations)
+    )
+    
+    # Initialize database tables
+    try:
+        init_db()
+        logger.info("Database tables initialized")
+    except Exception as e:
+        logger.error("Failed to initialize database", error=str(e))
+        raise
+    
+    # Pre-fetch TLE data on startup to populate cache
+    try:
+        await spacetrack_service.fetch_tles_for_group(settings.satellite_group)
+        logger.info("TLE cache initialized on startup")
+    except Exception as e:
+        logger.warning(
+            "Failed to initialize TLE cache on startup",
+            error=str(e)
+        )
+    
+    yield
+    
+    # Shutdown logic
+    logger.info("Mission Planning Assistant shutting down")
+
+
 # Create FastAPI application
 app = FastAPI(
     title="Mission Planning Assistant API",
     description="Ground Station Contact Scheduling with AI Decision-Support",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -70,42 +109,6 @@ async def health_check():
         "satellite_group": settings.satellite_group,
         "ground_stations": len(settings.ground_stations)
     }
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize services on application startup."""
-    logger.info(
-        "Mission Planning Assistant starting",
-        database="postgresql",
-        satellite_group=settings.satellite_group,
-        ground_stations=len(settings.ground_stations)
-    )
-    
-    # Initialize database tables
-    try:
-        init_db()
-        logger.info("Database tables initialized")
-    except Exception as e:
-        logger.error("Failed to initialize database", error=str(e))
-        raise
-    
-    # Pre-fetch TLE data on startup to populate cache
-    try:
-        from app.services.spacetrack_client import spacetrack_service
-        await spacetrack_service.fetch_tles_for_group(settings.satellite_group)
-        logger.info("TLE cache initialized on startup")
-    except Exception as e:
-        logger.warning(
-            "Failed to initialize TLE cache on startup",
-            error=str(e)
-        )
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on application shutdown."""
-    logger.info("Mission Planning Assistant shutting down")
 
 
 if __name__ == "__main__":
