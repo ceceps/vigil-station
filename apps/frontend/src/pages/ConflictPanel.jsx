@@ -14,7 +14,7 @@ function ConflictPanel() {
   const [filters, setFilters] = useState({
     groundStationId: '',
     startTime: new Date().toISOString().split('T')[0],
-    endTime: new Date(Date.now() + 86400000).toISOString().split('T')[0]
+    endTime: new Date().toISOString().split('T')[0]
   })
 
   useEffect(() => {
@@ -165,12 +165,17 @@ function ConflictPanel() {
           </select>
         </div>
 
-        <div className="filter-group">
+                <div className="filter-group">
           <label>Start Date:</label>
           <input
             type="date"
+            max={new Date().toISOString().split('T')[0]}
             value={filters.startTime}
-            onChange={(e) => setFilters({ ...filters, startTime: e.target.value })}
+            onChange={(e) => {
+              const today = new Date().toISOString().split('T')[0]
+              const val = e.target.value > today ? today : e.target.value
+              setFilters({ ...filters, startTime: val })
+            }}
           />
         </div>
 
@@ -178,9 +183,14 @@ function ConflictPanel() {
           <label>End Date:</label>
           <input
             type="date"
+            max={new Date().toISOString().split('T')[0]}
             value={filters.endTime}
             min={filters.startTime}
-            onChange={(e) => setFilters({ ...filters, endTime: e.target.value })}
+            onChange={(e) => {
+              const today = new Date().toISOString().split('T')[0]
+              const val = e.target.value > today ? today : e.target.value
+              setFilters({ ...filters, endTime: val })
+            }}
           />
         </div>
       </div>

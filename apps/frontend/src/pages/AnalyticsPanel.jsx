@@ -117,9 +117,12 @@ function AnalyticsPanel() {
           <label>Start Date:</label>
           <input
             type="date"
+            max={new Date().toISOString().split('T')[0]}
             value={startTime}
             onChange={(e) => {
-              setStartTime(e.target.value)
+              const today = new Date().toISOString().split('T')[0]
+              const val = e.target.value > today ? today : e.target.value
+              setStartTime(val)
               setActivePreset('custom')
             }}
           />
@@ -129,10 +132,13 @@ function AnalyticsPanel() {
           <label>End Date:</label>
           <input
             type="date"
+            max={new Date().toISOString().split('T')[0]}
             value={endTime}
             min={startTime}
             onChange={(e) => {
-              setEndTime(e.target.value)
+              const today = new Date().toISOString().split('T')[0]
+              const val = e.target.value > today ? today : e.target.value
+              setEndTime(val)
               setActivePreset('custom')
             }}
           />
