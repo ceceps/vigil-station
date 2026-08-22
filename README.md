@@ -162,19 +162,6 @@ This project was built entirely with **IBM Bob**, an AI-powered development assi
    - Error handling and logging
    - Security best practices (environment variables, no hardcoded secrets)
 
-### 🚀 Development Timeline
-
-From zero to production-ready application:
-
-1. **Hour 1**: Requirements analysis and architecture design
-2. **Hour 2-3**: Backend implementation (API, services, database)
-3. **Hour 4**: Frontend implementation (React pages, components)
-4. **Hour 5**: Database migration to PostgreSQL
-5. **Hour 6**: Debugging and timezone fixes
-6. **Hour 7**: Testing, documentation, and deployment preparation
-
-**Total Development Time**: ~7 hours with IBM Bob assistance
-
 ### 💡 Key Takeaways
 
 **What IBM Bob Excels At:**
@@ -329,6 +316,9 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 ANTHROPIC_API_URL=https://client.claude.ai/v1
 ANTHROPIC_MODEL=claude-opus-5
 
+# Get Nasa Open API Token you can get at https://api.nasa.gov/
+NASA_API_KEY=your_nasa_api_token
+
 # PostgreSQL Database
 DATABASE_URL=postgresql://mission_user:mission_password@localhost:5432/mission_planning
 ```
@@ -441,6 +431,12 @@ The system tracks the **Iridium** satellite constellation (LEO communication sat
     "override_reason": "Optional reason if not approved"
   }
   ```
+
+### Space Weather
+- `GET /space-weather?start=&end=` - Get space weather events (solar flares, geomagnetic storms) from NASA DONKI
+
+### Analytics
+- `GET /analytics/insights?start=&end=` - Get AI-driven operational insights and synthesis reports from database history
 
 ## 🗄️ Database Management
 
