@@ -75,7 +75,6 @@ Vigil Station calculates satellite contact windows for three ground stations in 
 - pytest (backend tests)
 
 **Database:**
-- SQLite (default, config: `sqlite:///./mission_planning.db`)
 - PostgreSQL supported via `DATABASE_URL` env var
 
 ## Getting Started
@@ -101,7 +100,8 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env with your credentials
+# Edit .env with your credentials API and Database see Enviroment Variables below
+
 
 # Frontend
 cd ../frontend
@@ -133,7 +133,7 @@ SPACETRACK_USERNAME=your_username
 SPACETRACK_PASSWORD=your_password
 ANTHROPIC_API_KEY=your_api_key
 NASA_API_KEY=DEMO_KEY
-DATABASE_URL=sqlite:///./mission_planning.db
+DATABASE_URL=postgresql://mission_user:mission_password@localhost:5432/mission_planning
 ```
 
 ## API Endpoints
@@ -217,7 +217,7 @@ vigil-station/
 
 ## Built With IBM Bob
 
-This project was built entirely with IBM Bob (Claude Code agent). The agent handled architecture, code generation, debugging, and testing across 7+ PR cycles. It resolved issues like NASA API 503 errors (added retry with DEMO_KEY fallback), Playwright timeout problems, and TTS voiceover pipeline integration. The human reviewed decisions; the agent wrote the code.
+This project was built entirely with IBM Bob. The agent handled architecture, code generation, debugging, and testing across 7+ PR cycles. It resolved issues like NASA API 503 errors (added retry with DEMO_KEY fallback), Playwright timeout problems, and TTS voiceover pipeline integration. The human reviewed decisions; the agent wrote the code.
 
 ## License
 
