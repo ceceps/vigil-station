@@ -139,3 +139,4 @@ class SpaceWeatherResponse(BaseModel):
     events: List[SpaceWeatherEvent] = Field(default_factory=list, description="List of space weather events")
     overall_status: str = Field(..., description="Overall space weather status")
     communication_impact: SpaceWeatherCommunicationImpact = Field(..., description="Communication impact assessment")
+    data_available: bool = Field(default=True, description="Whether data was successfully fetched from NASA")

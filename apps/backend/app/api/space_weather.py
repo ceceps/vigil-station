@@ -69,6 +69,9 @@ async def get_space_weather(
             end_time
         )
         
+        # Track if data was actually available (not just empty due to errors)
+        data_available = space_weather.get('data_available', True)
+        
         # Assess communication impact
         communication_impact = space_weather_client.is_communication_affected(space_weather)
         
@@ -95,7 +98,8 @@ async def get_space_weather(
         return SpaceWeatherResponse(
             events=events,
             overall_status=space_weather.get('overall_status', 'unknown'),
-            communication_impact=communication_impact
+            communication_impact=communication_impact,
+            data_available=data_available
         )
         
     except Exception as e:
