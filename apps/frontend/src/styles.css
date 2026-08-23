@@ -67,7 +67,11 @@ body {
 }
 
 .app-header h1 {
-  @apply text-4xl font-bold mb-2;
+  @apply text-4xl font-bold mb-2 flex items-center gap-3;
+}
+
+.app-header h1 img {
+  @apply h-10 w-auto;
 }
 
 .subtitle {

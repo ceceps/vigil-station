@@ -49,7 +49,7 @@ test.describe('Vigil Station Demo Recording', () => {
     await page.screenshot({ path: 'tests/demo/screenshots/02-schedule.png' })
 
     // Extra delay for voiceover to finish describing elevation color coding (green/yellow/red)
-    await page.waitForTimeout(5000)
+    await page.waitForTimeout(10000)
 
     // ===== CONFLICTS TAB =====
     await page.locator('button', { hasText: 'Conflicts' }).click()
@@ -60,6 +60,14 @@ test.describe('Vigil Station Demo Recording', () => {
       return cards.length > 0 || noConflicts
     }, { timeout: 30000 }).catch(() => {})
     await page.waitForTimeout(2000)
+    // Screenshot showing tab title at top
+    await page.screenshot({ path: 'tests/demo/screenshots/03-conflicts-title.png' })
+    // Scroll down to show conflict cards
+    await page.evaluate(() => {
+      const cards = document.querySelector('.conflict-card')
+      if (cards) cards.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    await page.waitForTimeout(1500)
     await page.screenshot({ path: 'tests/demo/screenshots/03-conflicts.png' })
 
     // Wait for Generate AI Recommendation button to be visible and clickable
@@ -87,6 +95,14 @@ test.describe('Vigil Station Demo Recording', () => {
       return cards.length > 0 || noApprovals
     }, { timeout: 30000 }).catch(() => {})
     await page.waitForTimeout(2000)
+    // Screenshot showing tab title at top
+    await page.screenshot({ path: 'tests/demo/screenshots/04-approvals-title.png' })
+    // Scroll down to show approval cards
+    await page.evaluate(() => {
+      const cards = document.querySelector('.approval-card')
+      if (cards) cards.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    await page.waitForTimeout(1500)
     await page.screenshot({ path: 'tests/demo/screenshots/04-approvals.png' })
 
     // Click Generate Recommendation if no recommendation yet
@@ -158,7 +174,7 @@ test.describe('Vigil Station Demo Recording', () => {
       const stats = document.querySelectorAll('.stat-value')
       return stats.length > 0 && stats[0].textContent.trim().length > 0
     }, { timeout: 30000 }).catch(() => {})
-    await page.waitForTimeout(5000)
+    await page.waitForTimeout(10000)
     await page.screenshot({ path: 'tests/demo/screenshots/06-space-weather.png' })
 
     // ===== ANALYTICS TAB =====
@@ -168,7 +184,13 @@ test.describe('Vigil Station Demo Recording', () => {
       const stats = document.querySelectorAll('.stat-value')
       return stats.length > 0 && stats[0].textContent.trim().length > 0
     }, { timeout: 30000 }).catch(() => {})
-    await page.waitForTimeout(5000)
+    await page.waitForTimeout(10000)
+    // Scroll down to show analytics content
+    await page.evaluate(() => {
+      const content = document.querySelector('.analytics-panel') || document.querySelector('.stat-card')
+      if (content) content.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    await page.waitForTimeout(17000)
     await page.screenshot({ path: 'tests/demo/screenshots/07-analytics.png' })
 
     await page.screenshot({ path: 'tests/demo/screenshots/08-final.png' })

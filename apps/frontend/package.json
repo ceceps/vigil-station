@@ -2,7 +2,7 @@
   "name": "mission-planning-assistant-frontend",
   "version": "1.0.0",
   "type": "module",
-  "description": "Frontend for Mission Planning Assistant - Ground Station Contact Scheduling",
+  "description": "Frontend for Vigil Station - AI-Powered Ground Station Scheduling Assistant",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
