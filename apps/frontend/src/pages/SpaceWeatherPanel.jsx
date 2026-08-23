@@ -25,7 +25,8 @@ function SpaceWeatherPanel() {
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status, dataAvailable) => {
+    if (!dataAvailable) return '#ff9800'
     switch (status) {
       case 'extreme': return '#f44336'
       case 'severe': return '#ff5722'
@@ -121,9 +122,9 @@ function SpaceWeatherPanel() {
         <div className="stat-card">
           <div 
             className="stat-value"
-            style={{ color: getStatusColor(overallStatus) }}
+            style={{ color: getStatusColor(overallStatus, spaceWeather?.data_available !== false) }}
           >
-            {overallStatus.toUpperCase()}
+            {spaceWeather?.data_available === false ? 'UNAVAILABLE' : overallStatus.toUpperCase()}
           </div>
           <div className="stat-label">Overall Status</div>
         </div>
@@ -193,6 +194,12 @@ function SpaceWeatherPanel() {
               </div>
             </div>
           ))}
+        </div>
+      ) : spaceWeather?.data_available === false ? (
+        <div className="error-message" style={{ textAlign: 'center', padding: '20px' }}>
+          <div style={{ fontSize: '24px', marginBottom: '10px' }}>⚠️</div>
+          <h3>Unable to Fetch Space Weather Data</h3>
+          <p>NASA DONKI API is temporarily unavailable. Please try again later.</p>
         </div>
       ) : (
         <div className="no-conflicts">

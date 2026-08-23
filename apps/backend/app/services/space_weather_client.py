@@ -5,6 +5,7 @@ that may affect satellite communication link quality.
 """
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
+import asyncio
 import structlog
 import httpx
 
@@ -65,8 +66,9 @@ class SpaceWeatherClient:
             event_types = ["solar_flare", "coronal_mass_ejection", "geomagnetic_storm"]
         
         all_events = {}
+        data_available = True
         
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=10.0) as client:
             for event_type in event_types:
                 donki_type = self.EVENT_TYPES.get(event_type)
                 if not donki_type:
@@ -85,6 +87,7 @@ class SpaceWeatherClient:
                         error=str(e)
                     )
                     all_events[event_type] = []
+                    data_available = False
         
         # Calculate overall space weather status
         overall_status = self._calculate_overall_status(all_events)
@@ -100,6 +103,7 @@ class SpaceWeatherClient:
         return {
             "events": all_events,
             "overall_status": overall_status,
+            "data_available": data_available,
             "query_period": {
                 "start": start_time.isoformat(),
                 "end": end_time.isoformat()
@@ -113,20 +117,37 @@ class SpaceWeatherClient:
         start_time: datetime,
         end_time: datetime
     ) -> List[Dict[str, Any]]:
-        """Fetch a specific event type from DONKI API."""
+        """Fetch a specific event type from DONKI API with retry and DEMO_KEY fallback."""
         
         params = {
             "startDate": start_time.strftime("%Y-%m-%d"),
             "endDate": end_time.strftime("%Y-%m-%d"),
-            "api_key": settings.nasa_api_key
         }
         
         url = f"{self.BASE_URL}/{donki_type}"
-        response = await client.get(url, params=params)
-        response.raise_for_status()
         
-        raw_events = response.json()
-        return self._parse_events(raw_events, donki_type)
+        # Try with custom API key first, then fall back to DEMO_KEY
+        api_keys = [settings.nasa_api_key, "DEMO_KEY"]
+        
+        for api_key in api_keys:
+            for attempt in range(2):
+                try:
+                    response = await client.get(url, params={**params, "api_key": api_key})
+                    response.raise_for_status()
+                    raw_events = response.json()
+                    return self._parse_events(raw_events, donki_type)
+                except httpx.HTTPStatusError as e:
+                    if e.response.status_code == 503 and attempt < 1:
+                        await asyncio.sleep(1)
+                        continue
+                    raise
+                except Exception:
+                    if attempt < 1:
+                        await asyncio.sleep(1)
+                        continue
+                    raise
+        
+        return []
     
     def _parse_events(self, raw_events: List[Dict], event_type: str) -> List[Dict[str, Any]]:
         """Parse raw DONKI API events into standardized format."""
