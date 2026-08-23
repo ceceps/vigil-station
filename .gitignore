@@ -41,6 +41,7 @@ instance/
 .webassets-cache
 .scrapy
 docs/_build/
+docs/VIDEO*
 target/
 .ipynb_checkpoints
 .python-version
@@ -58,6 +59,10 @@ venv.bak/
 .ropeproject
 /site
 .mypy_cache/
+apps/frontend/test-results
+apps/frontend/tests/demo/*
+docs/demo/*.mp3
+docs/demo/*.mp4
 
 # Node
 node_modules/
@@ -110,6 +115,7 @@ dist
 *.swo
 *~
 .DS_Store
+*.code-workspace
 
 # Database
 *.db

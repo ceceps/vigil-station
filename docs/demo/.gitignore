@@ -1,0 +1,4 @@
+*.mp4
+*.png
+screenshot
+!.gitignore
