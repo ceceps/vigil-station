@@ -48,7 +48,7 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <div>
-            <h1>🛰️ Mission Planning Assistant</h1>
+            <h1><img src="dist/assets/logo.png" alt="Vigil Station" /> Vigil Station</h1>
             <p className="subtitle">Ground Station Contact Scheduling with AI Decision-Support</p>
           </div>
           <button 
@@ -131,7 +131,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>Mission Planning Assistant v1.0.0 | IBM Bob Space Exploration Hackathon</p>
+        <p>Vigil Station v1.0.0 | IBM Bob Space Exploration Hackathon</p>
       </footer>
     </div>
   )
