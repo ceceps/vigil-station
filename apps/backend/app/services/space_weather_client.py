@@ -68,7 +68,7 @@ class SpaceWeatherClient:
         all_events = {}
         data_available = True
         
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=10.0) as client:
             for event_type in event_types:
                 donki_type = self.EVENT_TYPES.get(event_type)
                 if not donki_type:
@@ -130,20 +130,20 @@ class SpaceWeatherClient:
         api_keys = [settings.nasa_api_key, "DEMO_KEY"]
         
         for api_key in api_keys:
-            for attempt in range(3):
+            for attempt in range(2):
                 try:
                     response = await client.get(url, params={**params, "api_key": api_key})
                     response.raise_for_status()
                     raw_events = response.json()
                     return self._parse_events(raw_events, donki_type)
                 except httpx.HTTPStatusError as e:
-                    if e.response.status_code == 503 and attempt < 2:
-                        await asyncio.sleep(1 * (attempt + 1))
+                    if e.response.status_code == 503 and attempt < 1:
+                        await asyncio.sleep(1)
                         continue
                     raise
                 except Exception:
-                    if attempt < 2:
-                        await asyncio.sleep(1 * (attempt + 1))
+                    if attempt < 1:
+                        await asyncio.sleep(1)
                         continue
                     raise
         
