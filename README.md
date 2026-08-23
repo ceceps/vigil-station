@@ -207,7 +207,8 @@ vigil-station/
 │       └── package.json
 ├── docs/
 │   ├── demo/                  # generated video + screenshots
-│   └── VIDEO_SCRIPT_PITCH.md
+│   └── AGENTS.md
+│   └── PLANNING.md
 ├── generate-demo.sh
 ├── start.sh
 ├── stop.sh
